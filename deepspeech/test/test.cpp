@@ -47,23 +47,7 @@
   #define LOG_W       printf
 #endif
 
-#if 0
-int main()
-{
 
-  LOG("Test\n");
-  ModelState* aCtx = NULL;
-      StreamingState* ctx;
-    int status = DS_CreateStream(aCtx, &ctx);
-    if (status != DS_ERR_OK) {
-      LOG("error\n");
-      return 1;
-    }
-
-  return 0;
-}
-
-#else
 
 typedef struct {
   const char* string;
@@ -196,9 +180,10 @@ ds_result LocalDsSTT(ModelState* aCtx, const short* aBuffer, size_t aBufferSize,
 ds_audio_buffer GetAudioBuffer(const char* path, int desired_sample_rate)
 {
   ds_audio_buffer res = {0};
+  char fourcc[4];
   
   // FIXME: Hack and support only mono 16-bits PCM with standard SoX header
-  FILE* wave = fopen(path, "r");
+  FILE* wave = fopen(path, "rb");
 
   size_t rv;
 
@@ -224,10 +209,35 @@ ds_audio_buffer GetAudioBuffer(const char* path, int desired_sample_rate)
   LOG_E("sample_rate=%d (desired=%d)\n", sample_rate, desired_sample_rate);
   LOG_E("bits_per_sample=%d\n", bits_per_sample);
 
-  fseek(wave, 40, SEEK_SET); rv = fread(&res.buffer_size, 4, 1, wave);
+  fseek(wave, 36, SEEK_SET);
+
+  while(1) {
+    int p_size;
+    rv = fread(&fourcc, 1, 4, wave);
+    if (rv != 4) {
+      LOG_E("GetAudioBuffer: read error\n");
+      return res;
+    }
+    if (memcmp(fourcc, "data", 4)  == 0)
+      break;
+
+    rv = fread(&p_size, 1, 4, wave);
+    if (rv != 4) {
+      LOG_E("GetAudioBuffer: read error\n");
+      return res;
+    }
+    fseek(wave, p_size, SEEK_CUR);
+  }
+
+  // fseek(wave, 40, SEEK_SET);
+  rv = fread(&res.buffer_size, 1, 4, wave);
+  if (rv != 4) {
+    LOG_E("GetAudioBuffer: read error\n");
+    return res;
+  }
   LOG_E("res.buffer_size=%ld\n", res.buffer_size);
 
-  fseek(wave, 44, SEEK_SET);
+  //fseek(wave, 44, SEEK_SET);
   res.buffer = (char*)malloc(sizeof(char) * res.buffer_size);
   rv = fread(res.buffer, sizeof(char), res.buffer_size, wave);
 
@@ -438,4 +448,3 @@ int main(int argc, char **argv)
 
   return 0;
 }
-#endif

@@ -21,7 +21,27 @@
 #include "ui_autypermain.h"
 #include "log.h"
 
+extern int audio2text(int argc, char **argv);
 
+#if 1
+static const char * args [7] = {
+  "test",
+  "--model",
+  "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.pbmm",
+  "--scorer",
+  "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.scorer",
+  "--audio",
+  "..\\..\\autyper\\deepspeech\\models\\2830-3980-0043.wav" };
+#else
+static const char * args [7] = {
+  "test",
+  "--model",
+  "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.pbmm",
+  "--scorer",
+  "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.scorer",
+  "--audio",
+  "c:\\Users\\mvaranda\\voices\\invisibleman_Mono_16000_16_64kbs.wav" };
+#endif
 
 AutyperMain::AutyperMain(QWidget *parent)
   : QMainWindow(parent)
@@ -41,4 +61,5 @@ void AutyperMain::on_actionOpen_triggered()
   LOG("Open...");
   QString d ="Current dir: "+  QDir::currentPath();
   LOG(d.toStdString().c_str());
+  ::audio2text(7, (char **) args);
 }
