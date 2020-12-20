@@ -15,14 +15,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "autypermain.h"
+#include <QDebug>
+#include "log.h"
 
-#include <QApplication>
-
-int main(int argc, char *argv[])
+void qDebugCpp(char * s) // format,...)
 {
-  QApplication a(argc, argv);
-  AutyperMain w;
-  w.show();
-  return a.exec();
+//  va_list args;
+//  va_start(args, format);
+//  qDebug(format, args);
+//  va_end(args);
+  qDebug(s);
+}
+
+extern "C" {
+  void qDebugC(char * format,...)
+  {
+    char s[1024];
+    va_list args;
+    va_start(args, format);
+    vsprintf (s, format, args );
+    qDebugCpp(s); //format, args);
+    va_end(args);
+  }
 }

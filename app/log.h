@@ -1,3 +1,6 @@
+#ifndef LOG_H
+#define LOG_H
+
 /*
  * This file is part of the AuTyper distribution (https://github.com/mvaranda/autyper).
  * Copyright (c) 2020 Marcelo Varanda.
@@ -15,14 +18,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "autypermain.h"
 
-#include <QApplication>
+#include <stdio.h>
+#include <QDebug>
+#if 1
+#define LOG         qDebug
+#define LOG_E       qDebug
+#define LOG_I       qDebug
+#define LOG_W       qDebug
+#else
+#define LOG         printf
+#define LOG_E       printf
+#define LOG_I       printf
+#define LOG_W       printf
+#endif
 
-int main(int argc, char *argv[])
-{
-  QApplication a(argc, argv);
-  AutyperMain w;
-  w.show();
-  return a.exec();
+
+#ifdef __cplusplus
+  extern "C" {
+#endif
+
+
+  void qDebugC(char * format,...);
+
+
+#ifdef __cplusplus
 }
+#endif
+
+
+
+
+#endif // LOG_H

@@ -1,3 +1,21 @@
+/*
+ * This file is part of the AuTyper distribution (https://github.com/mvaranda/autyper).
+ * Copyright (c) 2020 Marcelo Varanda.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -12,21 +30,33 @@
 #include <sstream>
 #include <string>
 
+#define _MSC_VER
+
+
 #include "deepspeech.h"
 
 #define NO_SOX
 #define NO_DIR
 
+#ifdef QT_APP
+  #include "log.h"
+#else
+  #define LOG         printf
+  #define LOG_E       printf
+  #define LOG_I       printf
+  #define LOG_W       printf
+#endif
+
 #if 0
 int main()
 {
 
-  printf("Test\n");
+  LOG("Test\n");
   ModelState* aCtx = NULL;
       StreamingState* ctx;
     int status = DS_CreateStream(aCtx, &ctx);
     if (status != DS_ERR_OK) {
-      printf("error\n");
+      LOG("error\n");
       return 1;
     }
 
@@ -105,7 +135,7 @@ ds_result LocalDsSTT(ModelState* aCtx, const short* aBuffer, size_t aBufferSize,
       prev = last;
       const char* partial = DS_IntermediateDecode(ctx);
       if (last == nullptr || strcmp(last, partial)) {
-        printf("%s\n", partial);
+        LOG("%s\n", partial);
         last = partial;
       } else {
         DS_FreeString((char *) partial);
@@ -136,7 +166,7 @@ ds_result LocalDsSTT(ModelState* aCtx, const short* aBuffer, size_t aBufferSize,
       const Metadata* result = DS_IntermediateDecodeWithMetadata(ctx, 1);
       const char* partial = CandidateTranscriptToString(&result->transcripts[0]);
       if (last == nullptr || strcmp(last, partial)) {
-        printf("%s\n", partial);
+        LOG("%s\n", partial);
        last = partial;
       } else {
         free((char *) partial);
@@ -189,13 +219,13 @@ ds_audio_buffer GetAudioBuffer(const char* path, int desired_sample_rate)
   assert(sample_rate == desired_sample_rate); // at desired sample rate
   assert(bits_per_sample == 16); // 16 bits per sample
 
-  fprintf(stderr, "audio_format=%d\n", audio_format);
-  fprintf(stderr, "num_channels=%d\n", num_channels);
-  fprintf(stderr, "sample_rate=%d (desired=%d)\n", sample_rate, desired_sample_rate);
-  fprintf(stderr, "bits_per_sample=%d\n", bits_per_sample);
+  LOG_E("audio_format=%d\n", audio_format);
+  LOG_E("num_channels=%d\n", num_channels);
+  LOG_E("sample_rate=%d (desired=%d)\n", sample_rate, desired_sample_rate);
+  LOG_E("bits_per_sample=%d\n", bits_per_sample);
 
   fseek(wave, 40, SEEK_SET); rv = fread(&res.buffer_size, 4, 1, wave);
-  fprintf(stderr, "res.buffer_size=%ld\n", res.buffer_size);
+  LOG_E("res.buffer_size=%ld\n", res.buffer_size);
 
   fseek(wave, 44, SEEK_SET);
   res.buffer = (char*)malloc(sizeof(char) * res.buffer_size);
@@ -220,12 +250,12 @@ void ProcessFile(ModelState* context, const char* path, bool show_times)
   free(audio.buffer);
 
   if (result.string) {
-    printf("%s\n", result.string);
+    LOG("%s\n", result.string);
     DS_FreeString((char*)result.string);
   }
 
   if (show_times) {
-    printf("cpu_time_overall=%.05f\n",
+    LOG("cpu_time_overall=%.05f\n",
            result.cpu_time_overall);
   }
 }
@@ -248,7 +278,12 @@ SplitStringOnDelim(std::string in_string, std::string delim)
 }
 #endif
 
+
+#ifdef AUTYPER_APP
+int audio2text(int argc, char **argv)
+#else
 int main(int argc, char **argv)
+#endif
 {
   char* model = NULL;
   char* scorer = NULL;
@@ -260,7 +295,7 @@ int main(int argc, char **argv)
     if ( strcmp(argv[i], "--model") == 0) {
       i++;
       if (i >= argc) {
-        printf("missing arg for model\n");
+        LOG("missing arg for model\n");
         return 1;
       }
       model = argv[i];
@@ -268,7 +303,7 @@ int main(int argc, char **argv)
     if ( strcmp(argv[i], "--scorer") == 0) {
       i++;
       if (i >= argc) {
-        printf("missing arg for scorer\n");
+        LOG("missing arg for scorer\n");
         return 1;
       }
       scorer = argv[i];
@@ -276,7 +311,7 @@ int main(int argc, char **argv)
     if ( strcmp(argv[i], "--audio") == 0) {
       i++;
       if (i >= argc) {
-        printf("missing arg for audio\n");
+        LOG("missing arg for audio\n");
         return 1;
       }
       audio = argv[i];
@@ -284,10 +319,10 @@ int main(int argc, char **argv)
     i++;
   }
 
-  if ( ! model ) { printf("model must be provided\n"); return 1; }
-  //if ( ! scorer ) { printf("scorer must be provided\n"); return 1; }
-  if ( ! audio ) { printf("audio must be provided\n"); return 1; }
-  printf("Initialise DeepSpeech Client\n");
+  if ( ! model ) { LOG("model must be provided\n"); return 1; }
+  //if ( ! scorer ) { LOG("scorer must be provided\n"); return 1; }
+  if ( ! audio ) { LOG("audio must be provided\n"); return 1; }
+  LOG("Initialise DeepSpeech Client\n");
 
   // Initialise DeepSpeech
   ModelState* ctx;
@@ -295,7 +330,7 @@ int main(int argc, char **argv)
   int status = DS_CreateModel(model, &ctx);
   if (status != 0) {
     char* error = DS_ErrorCodeToErrorMessage(status);
-    fprintf(stderr, "Could not create model: %s\n", error);
+    LOG_E("Could not create model: %s\n", error);
     free(error);
     return 1;
   }
@@ -304,7 +339,7 @@ int main(int argc, char **argv)
   if (set_beamwidth) {
     status = DS_SetModelBeamWidth(ctx, beam_width);
     if (status != 0) {
-      fprintf(stderr, "Could not set model beam width.\n");
+      LOG_E("Could not set model beam width.\n");
       return 1;
     }
   }
@@ -313,13 +348,13 @@ int main(int argc, char **argv)
   if (scorer) {
     status = DS_EnableExternalScorer(ctx, scorer);
     if (status != 0) {
-      fprintf(stderr, "Could not enable external scorer.\n");
+      LOG_E("Could not enable external scorer.\n");
       return 1;
     }
     if (set_alphabeta) {
       status = DS_SetScorerAlphaBeta(ctx, lm_alpha, lm_beta);
       if (status != 0) {
-        fprintf(stderr, "Error setting scorer alpha and beta.\n");
+        LOG_E("Error setting scorer alpha and beta.\n");
         return 1;
       }
     }
@@ -338,7 +373,7 @@ int main(int argc, char **argv)
       float boost = strtof((pair_[1]).c_str(),0);
       status = DS_AddHotWord(ctx, word, boost);
       if (status != 0 || !boost_is_valid) {
-        fprintf(stderr, "Could not enable hot-word.\n");
+        LOG_E("Could not enable hot-word.\n");
         return 1;
       }
     }
@@ -353,7 +388,7 @@ int main(int argc, char **argv)
 
   struct stat wav_info;
   if (0 != stat(audio, &wav_info)) {
-    printf("Error on stat: %d\n", errno);
+    LOG("Error on stat: %d\n", errno);
   }
 
   switch (wav_info.st_mode & S_IFMT) {
@@ -367,7 +402,7 @@ int main(int argc, char **argv)
 #ifndef NO_DIR
     case S_IFDIR:
         {
-          printf("Running on directory %s\n", audio);
+          LOG("Running on directory %s\n", audio);
           DIR* wav_dir = opendir(audio);
           assert(wav_dir);
 
@@ -381,7 +416,7 @@ int main(int argc, char **argv)
             std::ostringstream fullpath;
             fullpath << audio << "/" << fname;
             std::string path = fullpath.str();
-            printf("> %s\n", path.c_str());
+            LOG("> %s\n", path.c_str());
             ProcessFile(ctx, path.c_str(), show_times);
           }
           closedir(wav_dir);
@@ -390,7 +425,7 @@ int main(int argc, char **argv)
 #endif
 
     default:
-        printf("Unexpected type for %s: %d\n", audio, (wav_info.st_mode & S_IFMT));
+        LOG("Unexpected type for %s: %d\n", audio, (wav_info.st_mode & S_IFMT));
       break;
   }
 
