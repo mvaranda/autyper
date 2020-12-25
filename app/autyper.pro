@@ -15,11 +15,13 @@ SOURCES += \
     ../deepspeech/test/test.cpp \
     log.cpp \
     main.cpp \
-    autypermain.cpp
+    autypermain.cpp \
+    voice2text.cpp
 
 HEADERS += \
     autypermain.h \
-    log.h
+    log.h \
+    voice2text.h
 
 FORMS += \
     autypermain.ui

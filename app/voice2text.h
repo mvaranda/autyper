@@ -1,5 +1,5 @@
-#ifndef AUTYPERMAIN_H
-#define AUTYPERMAIN_H
+#ifndef VOICE2TEXT_H
+#define VOICE2TEXT_H
 
 /*
  * This file is part of the AuTyper distribution (https://github.com/mvaranda/autyper).
@@ -18,29 +18,41 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QThread>
 
-#include <QMainWindow>
-#include "voice2text.h"
-
-QT_BEGIN_NAMESPACE
-namespace Ui { class AutyperMain; }
-QT_END_NAMESPACE
-
-class AutyperMain : public QMainWindow
+class Voice2Text: public QThread
 {
-  Q_OBJECT
-
-public:
-  AutyperMain(QWidget *parent = nullptr);
-  ~AutyperMain();
-
-private slots:
-  void on_actionOpen_triggered();
-  void handle_voice2text(Voice2Text::CResult * res);
 
 private:
-  Ui::AutyperMain *ui;
-  void startVoice2TextThread(QString filename);
+  Q_OBJECT
+  void run(void) override;
+
+public:
+  typedef enum {
+    PARTIAL_TEXT,
+    FINAL_TEXT,
+    ERROR_BAD_FILE,
+  } Result_t;
+
+  class CResult {
+  public:
+    QString   text;
+    Result_t  result_code;
+    CResult(Result_t code, QString txt) { text = txt; result_code = code; }
+  };
+
+
+
+  Voice2Text();
+  Voice2Text( QString filename, void * handler_func, void * handler_ctx);
+  Voice2Text( QString filename);
+
+private:
+  void thread(void);
+
+signals:
+    void resultReady(CResult * res);
 
 };
-#endif // AUTYPERMAIN_H
+
+#endif // VOICE2TEXT_H

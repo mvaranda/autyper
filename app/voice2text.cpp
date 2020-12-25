@@ -1,6 +1,3 @@
-#ifndef AUTYPERMAIN_H
-#define AUTYPERMAIN_H
-
 /*
  * This file is part of the AuTyper distribution (https://github.com/mvaranda/autyper).
  * Copyright (c) 2020 Marcelo Varanda.
@@ -18,29 +15,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include <QMainWindow>
 #include "voice2text.h"
+#include "log.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class AutyperMain; }
-QT_END_NAMESPACE
-
-class AutyperMain : public QMainWindow
+Voice2Text::Voice2Text()
 {
-  Q_OBJECT
 
-public:
-  AutyperMain(QWidget *parent = nullptr);
-  ~AutyperMain();
+}
 
-private slots:
-  void on_actionOpen_triggered();
-  void handle_voice2text(Voice2Text::CResult * res);
+void Voice2Text::run (void)
+{
+  QString result_txt("Hello");
+  /* ... here is the expensive or blocking operation ... */
+  CResult * res = new CResult(FINAL_TEXT, QString("Hello guys") );
+  emit resultReady(res);
+}
 
-private:
-  Ui::AutyperMain *ui;
-  void startVoice2TextThread(QString filename);
+Voice2Text::Voice2Text( QString filename, void * handler_func, void * handler_ctx)
+{
+//  connect(this, &Voice2Text::resultReady, (QObject *) handler_ctx, handler_func);
+//  connect(this, &Voice2Text::finished, this, &QObject::deleteLater);
+//  start();
+}
 
-};
-#endif // AUTYPERMAIN_H
+Voice2Text::Voice2Text( QString filename)
+{
+
+}
+
+void cppProtocolInit(void)
+{
+}
+

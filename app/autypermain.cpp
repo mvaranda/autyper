@@ -48,6 +48,7 @@ AutyperMain::AutyperMain(QWidget *parent)
   , ui(new Ui::AutyperMain)
 {
   ui->setupUi(this);
+  startVoice2TextThread(QString("myFile.wav"));
 }
 
 AutyperMain::~AutyperMain()
@@ -55,11 +56,25 @@ AutyperMain::~AutyperMain()
   delete ui;
 }
 
-
+void AutyperMain::startVoice2TextThread(QString filename)
+{
+    Voice2Text *workerThread = new Voice2Text(filename);
+    connect(workerThread, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
+    //connect(workerThread, &Voice2Text::finished, workerThread, &QObject::deleteLater);
+    workerThread->start();
+}
 void AutyperMain::on_actionOpen_triggered()
 {
   LOG("Open...");
   QString d ="Current dir: "+  QDir::currentPath();
   LOG(d.toStdString().c_str());
   ::audio2text(7, (char **) args);
+}
+
+void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
+{
+  QString t("Text result: ");
+  t = t + res->text + QString("\n");
+  LOG(t.toStdString().c_str());
+  delete res;
 }

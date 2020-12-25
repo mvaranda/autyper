@@ -106,6 +106,7 @@ ds_result LocalDsSTT(ModelState* aCtx, const short* aBuffer, size_t aBufferSize,
     StreamingState* ctx;
     int status = DS_CreateStream(aCtx, &ctx);
     if (status != DS_ERR_OK) {
+      LOG_E("DS_CreateStream: error = %d", status);
       res.string = strdup("");
       return res;
     }
