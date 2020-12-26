@@ -76,7 +76,6 @@ void AutyperMain::on_actionOpen_triggered()
 #else
   QProcessEnvironment p;
   QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
-  QFileInfo fi(fp);
   QString file = QFileDialog::getOpenFileName(this,
                                                tr("Open Audio file"),
                                                fp,

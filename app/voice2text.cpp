@@ -91,5 +91,6 @@ bool Voice2Text::convertToRaw(QString filename) {
   connect(decoder, SIGNAL(finished()), this, SLOT(convFinished())); // finished error
   connect(decoder, SIGNAL(Error()), this, SLOT(convError())); // finished error
   decoder->start();
+  return true;
 }
 
