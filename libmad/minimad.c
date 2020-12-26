@@ -39,7 +39,7 @@
 static int decode(unsigned char const *, unsigned long);
 
 #define MAX_FILE_SIZE (1024 * 1024 * 10) // 10 Mbytes
-#define FILE_NAME "C:\\Users\\mvaranda\\voices\\invisibleman_Mono_22050_32_64kbs_short.wav"
+#define FILE_NAME "C:\\Users\\mvaranda\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3"
 #define LOG printf
 int main(int argc, char *argv[])
 {
@@ -71,6 +71,14 @@ int main(int argc, char *argv[])
     LOG("Could not allocate memory\n");
     return 1;
   }
+  
+  int nread = fread(fdm, 1, len, fh);
+  fclose(fh);
+  if (nread != len) {
+    LOG("Could not read %d bytes, read instead %d\n", len, nread);
+    return 1;
+  }
+  
   
   decode(fdm, len);
 
