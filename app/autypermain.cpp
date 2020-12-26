@@ -20,6 +20,8 @@
 #include "autypermain.h"
 #include "ui_autypermain.h"
 #include "log.h"
+#include <QProcessEnvironment>
+#include <QFileDialog>
 
 extern int audio2text(int argc, char **argv);
 
@@ -48,7 +50,7 @@ AutyperMain::AutyperMain(QWidget *parent)
   , ui(new Ui::AutyperMain)
 {
   ui->setupUi(this);
-  startVoice2TextThread(QString("myFile.wav"));
+  startVoice2TextThread(QString("C:\\Users\\mvaranda\\voices\\invisibleman_Mono_22050_32_64kbs_short.wav"));
 }
 
 AutyperMain::~AutyperMain()
@@ -63,12 +65,34 @@ void AutyperMain::startVoice2TextThread(QString filename)
     //connect(workerThread, &Voice2Text::finished, workerThread, &QObject::deleteLater);
     workerThread->start();
 }
+
 void AutyperMain::on_actionOpen_triggered()
 {
+#if 0
   LOG("Open...");
   QString d ="Current dir: "+  QDir::currentPath();
   LOG(d.toStdString().c_str());
   ::audio2text(7, (char **) args);
+#else
+  QProcessEnvironment p;
+  QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
+  QFileInfo fi(fp);
+  QString file = QFileDialog::getOpenFileName(this,
+                                               tr("Open Audio file"),
+                                               fp,
+                                               tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
+                                               0,
+                                               QFileDialog::DontResolveSymlinks);
+
+  if (!file.isEmpty())
+  {
+    QString d ="Open file: " + file; // QDir::currentPath();
+    LOG(d.toStdString().c_str());
+  }
+  else {
+    LOG("Open audio file cancelled.");
+  }
+#endif
 }
 
 void AutyperMain::handle_voice2text(Voice2Text::CResult * res)

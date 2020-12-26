@@ -19,6 +19,7 @@
  */
 
 #include <QThread>
+#include <QAudioDecoder>
 
 class Voice2Text: public QThread
 {
@@ -41,14 +42,25 @@ public:
     CResult(Result_t code, QString txt) { text = txt; result_code = code; }
   };
 
-
-
   Voice2Text();
   Voice2Text( QString filename, void * handler_func, void * handler_ctx);
   Voice2Text( QString filename);
 
+
 private:
+
+  // private variables
+  QAudioDecoder   * decoder;
+  QString           filename;
+
+  // private methods
   void thread(void);
+  bool convertToRaw(QString filename);
+
+private slots:
+  void convReadBuffer(void);
+  void convFinished(void);
+  void convError(void);
 
 signals:
     void resultReady(CResult * res);
