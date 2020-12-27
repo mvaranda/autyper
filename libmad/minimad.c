@@ -209,14 +209,7 @@ enum mad_flow output(void *data,
     if (fwrite(&sample1, 1, 2, f_out) != 2) {
       LOG("write error\n");
     }
-    //putchar((sample >> 0) & 0xff);
-    //putchar((sample >> 8) & 0xff);
 
-    //if (nchannels == 2) {
-    //  sample = scale(*right_ch++);
-    //  putchar((sample >> 0) & 0xff);
-    //  putchar((sample >> 8) & 0xff);
-    //}
   }
 
   return MAD_FLOW_CONTINUE;
@@ -282,3 +275,58 @@ int decode(unsigned char const *start, unsigned long length)
 
   return result;
 }
+
+/*
+
+Resample definitions:
+                     |<St->|
+                     |     |
+Source samples:      T0    T1    T2    T3    T4    T5    T6    T7    T8
+                     |     |     |     |     |     |     |     |     |
++20                        -------     |
++10                       /       \    |    -#------
+0                     ---          \   |   /        \
+-10                  /              \  |  /          -----
+-20                                  \ | *<--VD2     
+-30                                   -#-|       
+                                         |        
+Destination samples: D0        D1        D2        D3        D4        T5        T6        T7      T8
+                     |         |         |         |         |         |         |         |       |
+                     |                   |
+                     |<-------- T ------>|
+     
+St = original sample period, ex: 1/44100
+
+S = source sample array (holding values for T0, T1... TN)
+i = Src sample index
+VD2 = desired destination sample value at D2
+T = time for desired sample D2 value to be calculated
+V = src sample before T (sample # at T3)
+Vn = src sample after T (sample # at T4)
+Vd = delta (Vn- V)
+
+then:
+  i = T/St
+  V = S[ int(i) ]
+  Vn = S[ int(i + 1) ]
+  Vd = Vn - V
+  VD2 = V + (  (T - int(i) * St) / St  ) * Vd
+  
+  ex: St = 60 microseconds (16666 Hz)
+      destination period = 100 microseconds (10000Hz)
+      T = 200
+      V = S[ int( 200/60 ) ]
+      V = S[ int(3.33) ]
+      V = S[ 3 ] = -30
+      V = -30
+      Vn = S[ int(4.33) ]
+      Vn = +10
+      Vd = 10 - (-30)
+      Vd = 40
+      VD2 = -30 + (  (200 - 3 * 60) / 60  ) * 40
+      VD2 = -30 + 0.3333 * 40
+      VD2 = -30 + 13.333
+      VD2 = -16.66
+     
+  
+*/
