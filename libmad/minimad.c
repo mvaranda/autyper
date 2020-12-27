@@ -39,17 +39,21 @@
 static int decode(unsigned char const *, unsigned long);
 
 #define MAX_FILE_SIZE (1024 * 1024 * 10) // 10 Mbytes
-#define FILE_NAME "C:\\Users\\mvaranda\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3"
+#define FILE_NAME "..\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3"
+#define FILE_OUTPUT "samples.raw"
+
 #define LOG printf
-int main(int argc, char *argv[])
+
+static FILE * f_out;
+
+static int mp3ToRaw( char * filename, char * file_out)
 {
-#if 1
   unsigned long len;
   void *fdm;
   
-  FILE * fh = fopen(FILE_NAME, "rb");
+  FILE * fh = fopen(filename, "rb");
   if (! fh) {
-    LOG("Could not open file\n");
+    LOG("Could not open input file: \"%s\"\n", filename);
     return 1;
   }
   fseek(fh, 0, SEEK_END);
@@ -79,30 +83,30 @@ int main(int argc, char *argv[])
     return 1;
   }
   
+  f_out = fopen(file_out, "wb");
+  if (! f_out) {
+    LOG("Could not open output file: \"%s\"\n", file_out);
+    return 1;
+  }
   
   decode(fdm, len);
-
-#else
-  struct stat stat;
-  void *fdm;
-
-  if (argc != 1)
-    return 1;
-
-  if (fstat(STDIN_FILENO, &stat) == -1 ||
-      stat.st_size == 0)
-    return 2;
-
-  fdm = mmap(0, stat.st_size, PROT_READ, MAP_SHARED, STDIN_FILENO, 0);
-  if (fdm == MAP_FAILED)
-    return 3;
-
-  decode(fdm, stat.st_size);
-
-  if (munmap(fdm, stat.st_size) == -1)
-    return 4;
-#endif
+  fclose(f_out);
+  
   return 0;
+}
+
+int main(int argc, char *argv[])
+{
+  
+  char * filename = FILE_NAME;
+  char * file_out = FILE_OUTPUT;
+  
+  if (argc >= 2) filename = argv[1];
+  if (argc >= 3) file_out = argv[2];
+  
+  LOG("input: \"%s\"\n", filename);
+  LOG("output: \"%s\"\n", file_out);
+  return mp3ToRaw(filename, file_out);
 }
 
 /*
@@ -175,30 +179,44 @@ enum mad_flow output(void *data,
 		     struct mad_header const *header,
 		     struct mad_pcm *pcm)
 {
-  unsigned int nchannels, nsamples;
+  unsigned int nchannels, nsamples, samplerate;
   mad_fixed_t const *left_ch, *right_ch;
-
-  /* pcm->samplerate contains the sampling frequency */
+  static int first_time = 1;
 
   nchannels = pcm->channels;
   nsamples  = pcm->length;
   left_ch   = pcm->samples[0];
   right_ch  = pcm->samples[1];
 
+  if (first_time) {
+    samplerate = pcm->samplerate;
+    LOG("Parameters:\n  samplerate = %d  nchannels = %d\n  nsamples = %d\n  left_ch = 0x%x\n  right_ch = 0x%x\n\n",
+      samplerate, nchannels, nsamples, left_ch, right_ch);
+  }
+
   while (nsamples--) {
-    signed int sample;
+    signed int sample1;
+    signed int sample2;
 
     /* output sample(s) in 16-bit signed little-endian PCM */
-
-    sample = scale(*left_ch++);
-    putchar((sample >> 0) & 0xff);
-    putchar((sample >> 8) & 0xff);
-
-    if (nchannels == 2) {
-      sample = scale(*right_ch++);
-      putchar((sample >> 0) & 0xff);
-      putchar((sample >> 8) & 0xff);
+    
+    sample1 = scale(*left_ch++);
+    if (nchannels > 1) {
+      sample2 = scale(*right_ch++);
+      sample1 = (sample1/2) + (sample2/2); // to mono
+    }   
+    
+    if (fwrite(&sample1, 1, 2, f_out) != 2) {
+      LOG("write error\n");
     }
+    //putchar((sample >> 0) & 0xff);
+    //putchar((sample >> 8) & 0xff);
+
+    //if (nchannels == 2) {
+    //  sample = scale(*right_ch++);
+    //  putchar((sample >> 0) & 0xff);
+    //  putchar((sample >> 8) & 0xff);
+    //}
   }
 
   return MAD_FLOW_CONTINUE;
