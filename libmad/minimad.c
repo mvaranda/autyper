@@ -84,7 +84,7 @@ static int mp3ToRaw( char * filename, char * file_out)
   int nread = fread(fdm, 1, len, fh);
   fclose(fh);
   if (nread != len) {
-    LOG("Could not read %d bytes, read instead %d\n", len, nread);
+    LOG("Could not read %ld bytes, read instead %d\n", len, nread);
     return 1;
   }
   
@@ -205,8 +205,8 @@ enum mad_flow output(void *data,
   if (first_time) {
     first_time = 0;
     input_samplerate = pcm->samplerate;
-    LOG("Parameters:\n  samplerate = %d  nchannels = %d\n  nsamples = %d\n  left_ch = 0x%x\n  right_ch = 0x%x\n\n",
-      input_samplerate, nchannels, nsamples, left_ch, right_ch);
+//    LOG("Parameters:\n  samplerate = %d  nchannels = %d\n  nsamples = %d\n  left_ch = 0x%x\n  right_ch = 0x%x\n\n",
+//      input_samplerate, nchannels, nsamples, (unsigned int) left_ch, (unsigned int) right_ch);
   }
 
   while (nsamples--) {
@@ -244,7 +244,7 @@ enum mad_flow error(void *data,
 {
   struct buffer *buffer = data;
 
-  fprintf(stderr, "decoding error 0x%04x (%s) at byte offset %u\n",
+  fprintf(stderr, "decoding error 0x%04x (%s) at byte offset %I64u\n",
 	  stream->error, mad_stream_errorstr(stream),
 	  stream->this_frame - buffer->start);
 
@@ -347,33 +347,32 @@ then:
   
 */
 
-#define RESAMPLE_NUM_SAMPLES (1024 * 128)
+#define RESAMPLE_NUM_SAMPLES (1024 * 2)
 
 typedef short sample_t; // two bytes per sample
 
 static sample_t bufin[RESAMPLE_NUM_SAMPLES];
-static sample_t bufout[RESAMPLE_NUM_SAMPLES];
 
 static int resample(  char * filename, unsigned int samplerate_in,
                       char * file_out, unsigned int samplerate_out)
 {
   double St = 1.0 / samplerate_in;
-  double StBase = 0.0;
+
   double i = 0.0;
   double T = 0.0;
   double Dp = 1.0 / samplerate_out; // destination period
-  unsigned int s_idx;
   sample_t         V, Vn, Vd, VD2;
   
   unsigned int samples_available_space = RESAMPLE_NUM_SAMPLES;
   
+#if 0 // reject lower input samplerate
   if (samplerate_out >= samplerate_in) {
     LOG("resample: output sample rate %d must be lower than input's %d.\n", samplerate_out, samplerate_in);
     return 1;
   }
- 
-  void *fdm;
-  unsigned int nread, nsamples;
+#endif
+
+  unsigned int nread, nsamples, nsamples_moved = 0;
   double integer;
   
   FILE * fh = fopen(filename, "rb");
@@ -387,11 +386,9 @@ static int resample(  char * filename, unsigned int samplerate_in,
     LOG("resample: Could not open output file: \"%s\"\n", file_out);
     return 1;
   }
-  
-  // we read 1 sample as the loop will always bring the last 
-  
-  while ( (nread = fread( &bufin[RESAMPLE_NUM_SAMPLES - samples_available_space], sizeof(sample_t), samples_available_space, fh) ) > 0) {
-    nsamples = nread/sizeof(sample_t);
+    
+  while ( (nread = fread( &bufin[RESAMPLE_NUM_SAMPLES - samples_available_space], 1, samples_available_space * sizeof(sample_t), fh) ) > 0) {
+    nsamples = nsamples_moved + nread/sizeof(sample_t);
     if (nsamples < 4) {
       LOG("resample: less than 4 samples remaining... drop them.\n");
       break;
@@ -406,13 +403,15 @@ static int resample(  char * filename, unsigned int samplerate_in,
     
       // V = S[ int(i) ]
       modf(i, &integer);
-      if (integer >= RESAMPLE_NUM_SAMPLES) {
+      if ( (integer >= RESAMPLE_NUM_SAMPLES) || (integer >= nsamples) ) {
         LOG("Before sample not available\n");
-        //StBase += St * nsamples;
         samples_available_space = RESAMPLE_NUM_SAMPLES;
+        nsamples_moved = 0;
         T -= St * nsamples;
-        while (T < 0) T += Dp;
-        //feed_more = 1;
+        while (T < 0) {
+          LOG("*** T negative\n");
+          T += Dp;
+        }
         break;
       }
       V = bufin[ (int) integer ];
@@ -424,11 +423,13 @@ static int resample(  char * filename, unsigned int samplerate_in,
         LOG("After sample not available\n");
         // we need to move the last sample to the begining
         bufin[0] = V;
-        //StBase += St * (nsamples - 1);
+        nsamples_moved = 1;
         samples_available_space = RESAMPLE_NUM_SAMPLES - 1;
         T -= St * (nsamples - 1);
-        while (T < 0) T += Dp;
-        //feed_more = 1;        
+        while (T < 0) {
+          LOG("*** T negative\n");
+          T += Dp;
+        }   
         break;
       }
       Vn = bufin[ (int) integer ];
@@ -455,18 +456,11 @@ static int resample(  char * filename, unsigned int samplerate_in,
 #endif
 
       fwrite(&VD2, sizeof(sample_t), 1, f_out);
-      //      fwrite(&V, sizeof(sample_t), 1, f_out);
     
       T += Dp;
     }
     
-    /*  i = T/St
-        V = S[ int(i) ]
-        Vn = S[ int(i + 1) ]
-        Vd = Vn - V
-        VD2 = V + (  (T - int(i) * St) / St  ) * Vd
-    */
-    LOG("new block\n");
+    //LOG("new block\n");
     
     
   }
