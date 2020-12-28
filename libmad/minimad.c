@@ -203,6 +203,7 @@ enum mad_flow output(void *data,
   right_ch  = pcm->samples[1];
 
   if (first_time) {
+    first_time = 0;
     input_samplerate = pcm->samplerate;
     LOG("Parameters:\n  samplerate = %d  nchannels = %d\n  nsamples = %d\n  left_ch = 0x%x\n  right_ch = 0x%x\n\n",
       input_samplerate, nchannels, nsamples, left_ch, right_ch);
@@ -348,7 +349,7 @@ then:
 
 #define RESAMPLE_NUM_SAMPLES (1024 * 128)
 
-typedef unsigned short sample_t; // two bytes per sample
+typedef short sample_t; // two bytes per sample
 
 static sample_t bufin[RESAMPLE_NUM_SAMPLES];
 static sample_t bufout[RESAMPLE_NUM_SAMPLES];
@@ -396,6 +397,8 @@ static int resample(  char * filename, unsigned int samplerate_in,
       break;
     }
     
+    LOG("nsamples = %d\n", nsamples);
+    
     while (1) {
     
       // i = T/St
@@ -405,6 +408,11 @@ static int resample(  char * filename, unsigned int samplerate_in,
       modf(i, &integer);
       if (integer >= RESAMPLE_NUM_SAMPLES) {
         LOG("Before sample not available\n");
+        //StBase += St * nsamples;
+        samples_available_space = RESAMPLE_NUM_SAMPLES;
+        T -= St * nsamples;
+        while (T < 0) T += Dp;
+        //feed_more = 1;
         break;
       }
       V = bufin[ (int) integer ];
@@ -414,6 +422,13 @@ static int resample(  char * filename, unsigned int samplerate_in,
       modf(i + 1.0, &integer);
       if (integer >= RESAMPLE_NUM_SAMPLES) {
         LOG("After sample not available\n");
+        // we need to move the last sample to the begining
+        bufin[0] = V;
+        //StBase += St * (nsamples - 1);
+        samples_available_space = RESAMPLE_NUM_SAMPLES - 1;
+        T -= St * (nsamples - 1);
+        while (T < 0) T += Dp;
+        //feed_more = 1;        
         break;
       }
       Vn = bufin[ (int) integer ];
@@ -423,9 +438,24 @@ static int resample(  char * filename, unsigned int samplerate_in,
     
       // VD2 = V + (  (T - int(i) * St) / St  ) * Vd
       VD2 = (sample_t) (  V + ( (T - int_i__times__St) / St) * Vd  );
-    
-      //fwrite(&VD2, sizeof(sample_t), 1, f_out);
-            fwrite(&V, sizeof(sample_t), 1, f_out);
+      
+#if 0
+      if (T < 1.5) {
+        LOG( "Vn = %d\n", Vn);
+        LOG( "V = %d\n", V);
+        LOG( "Vd = %d\n", Vd);
+        LOG( "VD2 = %d\n", VD2);
+        
+        LOG( "int_i__times__St = %f\n", int_i__times__St);
+        LOG( "T = %f\n", T);
+        LOG( "i = %f\n", i);
+        
+        LOG( "St = %f\n\n", St);
+      }
+#endif
+
+      fwrite(&VD2, sizeof(sample_t), 1, f_out);
+      //      fwrite(&V, sizeof(sample_t), 1, f_out);
     
       T += Dp;
     }
@@ -436,6 +466,7 @@ static int resample(  char * filename, unsigned int samplerate_in,
         Vd = Vn - V
         VD2 = V + (  (T - int(i) * St) / St  ) * Vd
     */
+    LOG("new block\n");
     
     
   }
