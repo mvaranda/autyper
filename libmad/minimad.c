@@ -22,6 +22,7 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <malloc.h>
+#include <math.h>
 //# include <sys/stat.h>
 //# include <sys/mman.h>
 
@@ -45,6 +46,10 @@ static int decode(unsigned char const *, unsigned long);
 #define LOG printf
 
 static FILE * f_out;
+
+static int resample(  char * filename, unsigned int samplerate_in,
+                      char * file_out, unsigned int samplerate_out);
+
 
 static int mp3ToRaw( char * filename, char * file_out)
 {
@@ -95,6 +100,8 @@ static int mp3ToRaw( char * filename, char * file_out)
   return 0;
 }
 
+static unsigned int input_samplerate;
+
 int main(int argc, char *argv[])
 {
   
@@ -106,7 +113,14 @@ int main(int argc, char *argv[])
   
   LOG("input: \"%s\"\n", filename);
   LOG("output: \"%s\"\n", file_out);
-  return mp3ToRaw(filename, file_out);
+  if ( mp3ToRaw(filename, file_out) == 0) {
+  
+    return resample(  file_out, input_samplerate,
+                      "out_16K.raw", 16000);
+  }
+  
+  return 1; //mp2ToRaw fail
+
 }
 
 /*
@@ -179,7 +193,7 @@ enum mad_flow output(void *data,
 		     struct mad_header const *header,
 		     struct mad_pcm *pcm)
 {
-  unsigned int nchannels, nsamples, samplerate;
+  unsigned int nchannels, nsamples;
   mad_fixed_t const *left_ch, *right_ch;
   static int first_time = 1;
 
@@ -189,9 +203,9 @@ enum mad_flow output(void *data,
   right_ch  = pcm->samples[1];
 
   if (first_time) {
-    samplerate = pcm->samplerate;
+    input_samplerate = pcm->samplerate;
     LOG("Parameters:\n  samplerate = %d  nchannels = %d\n  nsamples = %d\n  left_ch = 0x%x\n  right_ch = 0x%x\n\n",
-      samplerate, nchannels, nsamples, left_ch, right_ch);
+      input_samplerate, nchannels, nsamples, left_ch, right_ch);
   }
 
   while (nsamples--) {
@@ -327,6 +341,106 @@ then:
       VD2 = -30 + 0.3333 * 40
       VD2 = -30 + 13.333
       VD2 = -16.66
+      
      
   
 */
+
+#define RESAMPLE_NUM_SAMPLES (1024 * 128)
+
+typedef unsigned short sample_t; // two bytes per sample
+
+static sample_t bufin[RESAMPLE_NUM_SAMPLES];
+static sample_t bufout[RESAMPLE_NUM_SAMPLES];
+
+static int resample(  char * filename, unsigned int samplerate_in,
+                      char * file_out, unsigned int samplerate_out)
+{
+  double St = 1.0 / samplerate_in;
+  double StBase = 0.0;
+  double i = 0.0;
+  double T = 0.0;
+  double Dp = 1.0 / samplerate_out; // destination period
+  unsigned int s_idx;
+  sample_t         V, Vn, Vd, VD2;
+  
+  unsigned int samples_available_space = RESAMPLE_NUM_SAMPLES;
+  
+  if (samplerate_out >= samplerate_in) {
+    LOG("resample: output sample rate %d must be lower than input's %d.\n", samplerate_out, samplerate_in);
+    return 1;
+  }
+ 
+  void *fdm;
+  unsigned int nread, nsamples;
+  double integer;
+  
+  FILE * fh = fopen(filename, "rb");
+  if (! fh) {
+    LOG("resample: Could not open input file: \"%s\"\n", filename);
+    return 1;
+  }
+  
+  f_out = fopen(file_out, "wb");
+  if (! f_out) {
+    LOG("resample: Could not open output file: \"%s\"\n", file_out);
+    return 1;
+  }
+  
+  // we read 1 sample as the loop will always bring the last 
+  
+  while ( (nread = fread( &bufin[RESAMPLE_NUM_SAMPLES - samples_available_space], sizeof(sample_t), samples_available_space, fh) ) > 0) {
+    nsamples = nread/sizeof(sample_t);
+    if (nsamples < 4) {
+      LOG("resample: less than 4 samples remaining... drop them.\n");
+      break;
+    }
+    
+    while (1) {
+    
+      // i = T/St
+      i = T/St;
+    
+      // V = S[ int(i) ]
+      modf(i, &integer);
+      if (integer >= RESAMPLE_NUM_SAMPLES) {
+        LOG("Before sample not available\n");
+        break;
+      }
+      V = bufin[ (int) integer ];
+      double int_i__times__St = integer * St;
+    
+      // Vn = S[ int(i + 1) ]
+      modf(i + 1.0, &integer);
+      if (integer >= RESAMPLE_NUM_SAMPLES) {
+        LOG("After sample not available\n");
+        break;
+      }
+      Vn = bufin[ (int) integer ];
+    
+      // Vd = Vn - V
+      Vd = Vn - V;
+    
+      // VD2 = V + (  (T - int(i) * St) / St  ) * Vd
+      VD2 = (sample_t) (  V + ( (T - int_i__times__St) / St) * Vd  );
+    
+      //fwrite(&VD2, sizeof(sample_t), 1, f_out);
+            fwrite(&V, sizeof(sample_t), 1, f_out);
+    
+      T += Dp;
+    }
+    
+    /*  i = T/St
+        V = S[ int(i) ]
+        Vn = S[ int(i + 1) ]
+        Vd = Vn - V
+        VD2 = V + (  (T - int(i) * St) / St  ) * Vd
+    */
+    
+    
+  }
+  fclose(fh);
+  fclose(f_out);
+  
+  return 0;
+}
