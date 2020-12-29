@@ -1,1 +1,5 @@
 /build-autyper-Desktop_Qt_5_15_1_MinGW_64_bit-Debug
+*.user
+*.o
+*.stash
+build-autyper-Desktop_Qt_5_15_2_MinGW_64_bit-Debug/debug/autyper.exe
