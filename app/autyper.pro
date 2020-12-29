@@ -37,9 +37,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../deepspeech/lib/ -l:libdeepspeech.so
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../deepspeech/lib/ -l:libdeepspeech.so
-else:macx:CONFIG(debug, debug|release): LIBS += -L$$PWD/../deepspeech/lib/ -llibdeepspeech_mac.so
 else:unix: LIBS += -L$$PWD/../deepspeech/lib/ -ldeepspeech
+else:macx: LIBS += -L$$PWD/../deepspeech/lib/ -ldeepspeech_mac
 
 INCLUDEPATH += $$PWD/../deepspeech/include
 DEPENDPATH += $$PWD/../deepspeech/include
-
