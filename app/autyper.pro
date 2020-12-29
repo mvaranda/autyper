@@ -10,10 +10,13 @@ CONFIG += c++11
 
 
 DEFINES += AUTYPER_APP
-win32:DEFINES += _MSC_VER
+#win32:DEFINES += _MSC_VER
 
 SOURCES += \
     ../deepspeech/test/test.cpp \
+    feeders/feeder_mp3.cpp \
+    feeders/feederbase.cpp \
+    feeders/feederfactory.cpp \
     log.cpp \
     main.cpp \
     autypermain.cpp \
@@ -21,6 +24,9 @@ SOURCES += \
 
 HEADERS += \
     autypermain.h \
+    feeders/feeder_mp3.h \
+    feeders/feederbase.h \
+    feeders/feederfactory.h \
     log.h \
     voice2text.h
 
