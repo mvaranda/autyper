@@ -10,7 +10,7 @@ CONFIG += c++11
 
 
 DEFINES += AUTYPER_APP
-DEFINES += SWIG
+win32:DEFINES += _MSC_VER
 
 SOURCES += \
     ../deepspeech/test/test.cpp \

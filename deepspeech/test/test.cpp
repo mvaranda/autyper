@@ -30,7 +30,7 @@
 #include <sstream>
 #include <string>
 
-#define _MSC_VER
+//#define _MSC_VER
 
 
 #include "deepspeech.h"
