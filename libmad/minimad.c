@@ -19,12 +19,17 @@
  * $Id: minimad.c,v 1.4 2004/01/23 09:41:32 rob Exp $
  */
 
-# include <stdio.h>
-# include <unistd.h>
-# include <malloc.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#ifdef _MACOS
+  #include <malloc/malloc.h>
+#else
+  #include <malloc.h>
+#endif
+
 #include <math.h>
-//# include <sys/stat.h>
-//# include <sys/mman.h>
+
 
 # include "mad.h"
 
