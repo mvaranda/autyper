@@ -23,6 +23,7 @@ SOURCES += \
     voice2text.cpp
 
 HEADERS += \
+    ../deepspeech/include/deepspeech.h \
     autypermain.h \
     c_utils.h \
     feeders/feeder_mp3.h \

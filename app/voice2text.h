@@ -22,6 +22,7 @@
 #include <QAudioDecoder>
 #include "feederbase.h"
 
+#define   AUDIO_BUFFER_NUM_SAMPLES  (16 * 1024) // about 1 second (buffer is short... therefore size in bytes is double (32K)
 
 class Voice2Text: public QThread
 {
@@ -34,7 +35,8 @@ public:
   typedef enum {
     PARTIAL_TEXT,
     FINAL_TEXT,
-    ERROR_BAD_FILE,
+    ERROR_BAD_MODEL_FILE,
+    ERROR_BAD_SCORER_FILE,
   } Result_t;
 
   class CResult {
@@ -55,6 +57,7 @@ private:
   QAudioDecoder   * decoder;
   QString           filename;
   FeederBase      * feeder;
+  sample_t          aBuffer[AUDIO_BUFFER_NUM_SAMPLES];
 
   // private methods
   void thread(void);

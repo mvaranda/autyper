@@ -23,7 +23,7 @@ class FeederMp3: FeederBase
 {
 public:
   FeederMp3(QString input);
-  feeder_res_t getSamples(sample_t * samples, uint32_t num_samples, int progress);
+  feeder_res_t getSamples(sample_t * samples, uint32_t num_req_samples, uint32_t * num_deliver_samples, uint32_t * progress);
 
 private:
   FeederMp3() {};

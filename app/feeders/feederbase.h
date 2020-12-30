@@ -56,7 +56,7 @@ public:
   virtual ~FeederBase() {}
   feeder_t getType(void);
   QString getInputName(void);
-  virtual feeder_res_t getSamples(sample_t * samples, uint32_t num_samples, int progress) = 0;
+  virtual feeder_res_t getSamples(sample_t * samples, uint32_t num_req_samples, uint32_t * num_deliver_samples, uint32_t * progress) = 0;
 
 private:
   //-------- private methods ------
