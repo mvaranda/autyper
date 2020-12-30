@@ -20,6 +20,8 @@
 
 #include <QThread>
 #include <QAudioDecoder>
+#include "feederbase.h"
+
 
 class Voice2Text: public QThread
 {
@@ -44,7 +46,7 @@ public:
 
   Voice2Text();
   Voice2Text( QString filename, void * handler_func, void * handler_ctx);
-  Voice2Text( QString filename);
+  Voice2Text( QString filename, FeederBase * _feeder);
 
 
 private:
@@ -52,15 +54,14 @@ private:
   // private variables
   QAudioDecoder   * decoder;
   QString           filename;
+  FeederBase      * feeder;
 
   // private methods
   void thread(void);
   bool convertToRaw(QString filename);
 
 private slots:
-  void convReadBuffer(void);
-  void convFinished(void);
-  void convError(void);
+
 
 signals:
     void resultReady(CResult * res);

@@ -13,7 +13,7 @@ DEFINES += AUTYPER_APP
 #win32:DEFINES += _MSC_VER
 
 SOURCES += \
-    ../deepspeech/test/test.cpp \
+    c_utils.cpp \
     feeders/feeder_mp3.cpp \
     feeders/feederbase.cpp \
     feeders/feederfactory.cpp \
@@ -24,6 +24,7 @@ SOURCES += \
 
 HEADERS += \
     autypermain.h \
+    c_utils.h \
     feeders/feeder_mp3.h \
     feeders/feederbase.h \
     feeders/feederfactory.h \

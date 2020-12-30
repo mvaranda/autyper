@@ -53,7 +53,7 @@ AutyperMain::AutyperMain(QWidget *parent)
   , ui(new Ui::AutyperMain)
 {
   ui->setupUi(this);
-  startVoice2TextThread(QString("C:\\Users\\mvaranda\\voices\\invisibleman_Mono_22050_32_64kbs_short.wav"));
+  //startVoice2TextThread(QString("C:\\Users\\mvaranda\\voices\\invisibleman_Mono_22050_32_64kbs_short.wav"));
 }
 
 AutyperMain::~AutyperMain()
@@ -61,9 +61,9 @@ AutyperMain::~AutyperMain()
   delete ui;
 }
 
-void AutyperMain::startVoice2TextThread(QString filename)
+void AutyperMain::startVoice2TextThread(QString filename, FeederBase * feeder)
 {
-    Voice2Text *workerThread = new Voice2Text(filename);
+    Voice2Text *workerThread = new Voice2Text(filename, feeder);
     connect(workerThread, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
     //connect(workerThread, &Voice2Text::finished, workerThread, &QObject::deleteLater);
     workerThread->start();
@@ -102,7 +102,10 @@ void AutyperMain::on_actionOpen_triggered()
 
     if (f == NULL) {
       LOG("Could not create a feeded");
+      return;
     }
+
+    startVoice2TextThread(file, f);
   }
   else {
     LOG("Open audio file cancelled.");

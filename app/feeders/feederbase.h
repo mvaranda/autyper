@@ -21,10 +21,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <QString>
+#include "c_utils.h"
+
 
 extern "C" {
-int resample( const char * filename, unsigned int samplerate_in,
-              const char * file_out, unsigned int samplerate_out);
 }
 
 typedef enum {
@@ -39,9 +39,6 @@ typedef enum {
   FEEDER_RES__ERROR,
 } feeder_res_t;
 
-typedef short sample_t;
-
-#define RESAMPLE_NUM_SAMPLES (1024 * 2)
 
 class FeederBase
 {
@@ -63,8 +60,6 @@ public:
 
 private:
   //-------- private methods ------
-//  int resample(  char * filename, unsigned int samplerate_in,
-//                       char * file_out, unsigned int samplerate_out);
 
   //-------- private vaiables ---------
   feeder_t      feeder_type;
