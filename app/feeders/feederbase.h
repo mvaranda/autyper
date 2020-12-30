@@ -22,6 +22,11 @@
 #include <stdbool.h>
 #include <QString>
 
+extern "C" {
+int resample( const char * filename, unsigned int samplerate_in,
+              const char * file_out, unsigned int samplerate_out);
+}
+
 typedef enum {
   FEEDER_T__MICROPHONE,
   FEEDER_T__MP3,
@@ -36,24 +41,35 @@ typedef enum {
 
 typedef short sample_t;
 
-
+#define RESAMPLE_NUM_SAMPLES (1024 * 2)
 
 class FeederBase
 {
 public:
+  class FeederException {
+  public:
+    FeederException();
+    FeederException(const char * m, int v) { msg = m; exception_code = v; }
+    const char *  msg;
+    int           exception_code;
+  };
   //-------- public methods ------
 
   FeederBase(QString input_name);
+  virtual ~FeederBase() {}
   feeder_t getType(void);
   QString getInputName(void);
   virtual feeder_res_t getSamples(sample_t * samples, uint32_t num_samples, int progress) = 0;
 
 private:
   //-------- private methods ------
+//  int resample(  char * filename, unsigned int samplerate_in,
+//                       char * file_out, unsigned int samplerate_out);
 
   //-------- private vaiables ---------
   feeder_t      feeder_type;
   QString       input;
+//  sample_t      bufin[RESAMPLE_NUM_SAMPLES]; // for resample
 
 protected:
   FeederBase();

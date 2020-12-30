@@ -22,6 +22,9 @@
 #include "log.h"
 #include <QProcessEnvironment>
 #include <QFileDialog>
+#include "feederfactory.h"
+#include <QMessageBox>
+
 
 extern int audio2text(int argc, char **argv);
 
@@ -87,6 +90,19 @@ void AutyperMain::on_actionOpen_triggered()
   {
     QString d ="Open file: " + file; // QDir::currentPath();
     LOG(d.toStdString().c_str());
+    FeederBase * f = NULL;
+    try {
+      f = FeederFactory::create(file);
+    } catch (FeederBase::FeederException e) {
+      QMessageBox msgBox(QMessageBox::Warning, "Voice Input fail", e.msg);
+      msgBox.exec();
+      delete f;
+      f = NULL;
+    }
+
+    if (f == NULL) {
+      LOG("Could not create a feeded");
+    }
   }
   else {
     LOG("Open audio file cancelled.");

@@ -23,7 +23,6 @@ class FeederFactory
 public:
   //FeederFactory();
   static FeederBase * create(QString input_name);
-  //static void create(QString input_name);
 
 };
 

@@ -16,18 +16,30 @@
  */
 
 #include "feederfactory.h"
+#include "feeder_mp3.h"
+#include "log.h"
+#include <QFileInfo>
 
 //FeederFactory::FeederFactory()
 //{
 
 //}
 
-FeederBase * FeederFactory::create(QString input_name)
+FeederBase * FeederFactory::create(QString input)
 {
+  FeederBase * ret = NULL;
+  QFileInfo fn(input);
+  QString s = fn.suffix().toLower();
 
+  if (s == QString("mp3")) {
+    LOG("create MP3 feeder");
+    ret = (FeederBase *) new FeederMp3(input);
+  }
+  else if (s == QString("wav")) {
+    LOG("create Wave feeder");
+    //ret = (FeederBase *) new FeederMp3(input);
+  }
+
+  return ret;
 }
 
-//void FeederFactory::create(QString input_name)
-//{
-
-//}

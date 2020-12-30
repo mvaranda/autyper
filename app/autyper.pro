@@ -46,5 +46,10 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../deepspeech/lib/ -l:l
 else:unix: LIBS += -L$$PWD/../deepspeech/lib/ -ldeepspeech
 else:macx: LIBS += -L$$PWD/../deepspeech/lib/ -ldeepspeech_mac
 
+LIBS += -L$$PWD/../libmad -l:libmad.a
+
 INCLUDEPATH += $$PWD/../deepspeech/include
+INCLUDEPATH += $$PWD/../app/feeders
+INCLUDEPATH += $$PWD/../app
+INCLUDEPATH += $$PWD/../libmad
 DEPENDPATH += $$PWD/../deepspeech/include
