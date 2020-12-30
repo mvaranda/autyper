@@ -28,8 +28,8 @@
 #endif
 
 
-#define MODEL "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.pbmm"
-#define SCORER "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.scorer"
+#define MODEL "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.pbmm"
+#define SCORER "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.scorer"
 
 Voice2Text::Voice2Text(): decoder(NULL)
 {
@@ -41,7 +41,10 @@ Voice2Text::Voice2Text(): decoder(NULL)
 void Voice2Text::run (void)
 {
   const char * txt;
-  QString result_txt("Hello");
+ // QString result_txt("Hello");
+
+  LOG("HERE 1");
+
   /* ... here is the expensive or blocking operation ... */
   ModelState* ctx;
   // sphinx-doc: c_ref_model_start
@@ -49,17 +52,23 @@ void Voice2Text::run (void)
   if (status != 0) {
     char* error = DS_ErrorCodeToErrorMessage(status);
     LOG_E("Could not create model: %s\n", error);
-    free(error);
+    DS_FreeString((char *) error);
     CResult * res = new CResult(ERROR_BAD_MODEL_FILE, QString("Could not create Model") );
     emit resultReady(res);
     return;
   }
 
+    LOG("HERE 2");
+
   status = DS_EnableExternalScorer(ctx, SCORER);
   if (status != 0) {
+    char* error = DS_ErrorCodeToErrorMessage(status);
+    LOG_E("Could not create scorer: %s\n", error);
+    DS_FreeString((char *) error);
     LOG_E("Could not enable external scorer.\n");
     CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create Model") );
     emit resultReady(res);
+
     return;
   }
 
@@ -67,7 +76,7 @@ void Voice2Text::run (void)
   status = DS_CreateStream(ctx, &stream_st_ctx);
   if (status != DS_ERR_OK) {
     LOG_E("DS_CreateStream: error = %d", status);
-    CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create Model") );
+    CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create DS stream") );
     emit resultReady(res);
     return;
   }
@@ -76,6 +85,9 @@ void Voice2Text::run (void)
   const char *last = nullptr;
   const char *prev = nullptr;
   uint32_t nsamples, progress;
+
+    LOG("HERE 3");
+
   while (1) {
     feeder->getSamples(aBuffer, AUDIO_BUFFER_NUM_SAMPLES, &nsamples, &progress);
     if (nsamples == 0) {
@@ -122,6 +134,8 @@ void Voice2Text::run (void)
   //emit resultReady(res);
 #endif
 
+  quit();
+  //wait();
 }
 
 Voice2Text::Voice2Text( QString filename, void * handler_func, void * handler_ctx)

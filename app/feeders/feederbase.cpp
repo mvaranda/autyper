@@ -37,4 +37,12 @@ QString FeederBase::getInputName(void)
   return input;
 }
 
+feeder_res_t FeederBase::getSamples(sample_t * samples, uint32_t num_req_samples, uint32_t * num_deliver_samples, uint32_t * progress)
+{
+  int nread = fread(samples, 1, num_req_samples * 2, samples_fh);
+  *num_deliver_samples = nread / 2;
+  *progress = (nread * 100) / samples_file_size;
+
+}
+
 

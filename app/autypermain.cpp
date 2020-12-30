@@ -71,11 +71,8 @@ void AutyperMain::startVoice2TextThread(QString filename, FeederBase * feeder)
 
 void AutyperMain::on_actionOpen_triggered()
 {
-#if 0
-  LOG("Open...");
-  QString d ="Current dir: "+  QDir::currentPath();
-  LOG(d.toStdString().c_str());
-  ::audio2text(7, (char **) args);
+#if 1
+  QString file("..\\..\\autyper\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3");
 #else
   QProcessEnvironment p;
   QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
@@ -85,7 +82,7 @@ void AutyperMain::on_actionOpen_triggered()
                                                tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
-
+#endif
   if (!file.isEmpty())
   {
     QString d ="Open file: " + file; // QDir::currentPath();
@@ -110,7 +107,7 @@ void AutyperMain::on_actionOpen_triggered()
   else {
     LOG("Open audio file cancelled.");
   }
-#endif
+
 }
 
 void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
@@ -118,5 +115,14 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
   QString t("Text result: ");
   t = t + res->text + QString("\n");
   LOG(t.toStdString().c_str());
+  if ( (res->result_code == Voice2Text::PARTIAL_TEXT) ||
+       (res->result_code == Voice2Text::FINAL_TEXT) ) {
+
+  }
+  else {
+    QMessageBox msgBox(QMessageBox::Warning, "Voice Input fail", res->text);
+    msgBox.exec();
+  }
+
   delete res;
 }
