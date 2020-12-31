@@ -18,6 +18,7 @@
 #include "voice2text.h"
 #include "log.h"
 #include <stdio.h>
+#include <QString>
 
 #include "deepspeech.h"
 
@@ -55,9 +56,6 @@ uint32_t Voice2Text::getModelSampleRate (QString filaname)
 void Voice2Text::run (void)
 {
   const char * txt;
- // QString result_txt("Hello");
-
-  LOG("HERE 1");
 
   /* ... here is the expensive or blocking operation ... */
   ModelState* ctx;
@@ -67,12 +65,10 @@ void Voice2Text::run (void)
     char* error = DS_ErrorCodeToErrorMessage(status);
     LOG_E("Could not create model: %s\n", error);
     DS_FreeString((char *) error);
-    CResult * res = new CResult(ERROR_BAD_MODEL_FILE, QString("Could not create Model") );
+    CResult * res = new CResult(ERROR_BAD_MODEL_FILE, QString("Could not create Model"), 0 );
     emit resultReady(res);
     return;
   }
-
-    LOG("HERE 2");
 
   status = DS_EnableExternalScorer(ctx, scorer_fn.toStdString().c_str());
   if (status != 0) {
@@ -80,7 +76,7 @@ void Voice2Text::run (void)
     LOG_E("Could not create scorer: %s\n", error);
     DS_FreeString((char *) error);
     LOG_E("Could not enable external scorer.\n");
-    CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create Model") );
+    CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create Model"), 0 );
     emit resultReady(res);
 
     return;
@@ -90,29 +86,26 @@ void Voice2Text::run (void)
   status = DS_CreateStream(ctx, &stream_st_ctx);
   if (status != DS_ERR_OK) {
     LOG_E("DS_CreateStream: error = %d", status);
-    CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create DS stream") );
+    CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create DS stream"), 0 );
     emit resultReady(res);
     return;
   }
 
   uint32_t nsamples, progress;
 
-    LOG("HERE 3");
-
   while (1) {
     feeder->getSamples(aBuffer, AUDIO_BUFFER_NUM_SAMPLES, &nsamples, &progress);
     if (nsamples == 0) {
       txt = DS_FinishStream(stream_st_ctx);
-      CResult * res = new CResult(FINAL_TEXT, QString(txt) );
+      CResult * res = new CResult(FINAL_TEXT, QString(txt), progress );
       DS_FreeString((char *) txt);
       emit resultReady(res);
       break;
     }
 
-  LOG("HERE 4");
     DS_FeedAudioContent(stream_st_ctx, aBuffer, nsamples);
     const char* partial = DS_IntermediateDecode(stream_st_ctx);
-    CResult * res = new CResult(PARTIAL_TEXT, QString(partial) );
+    CResult * res = new CResult(PARTIAL_TEXT, QString(partial), progress );
     DS_FreeString((char *) partial);
     emit resultReady(res);
   }

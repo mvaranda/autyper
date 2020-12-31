@@ -16,6 +16,7 @@
  */
 
 #include <QProcessEnvironment>
+#include <stdio.h>
 #include "feeder_mp3.h"
 #include "log.h"
 
@@ -28,13 +29,8 @@ FeederMp3::FeederMp3(QString input, uint32_t model_samplerate):FeederBase(input,
     throw FeederException("Fail to convert MP3 file", 0);
   }
 
+  fseek(samples_fh, 0, SEEK_END);
+  samples_file_size = ftell(samples_fh);
+  fseek(samples_fh, 0, SEEK_SET);
 }
-
-//feeder_res_t FeederMp3::getSamples(sample_t * samples, uint32_t num_req_samples, uint32_t * num_deliver_samples, uint32_t * progress)
-//{
-//  int nread = fread(samples, 1, num_req_samples * 2, samples_fh);
-//  *num_deliver_samples = nread / 2;
-//  *progress = (nread * 100) / samples_file_size;
-
-//}
 

@@ -59,6 +59,9 @@ AutyperMain::AutyperMain(QWidget *parent)
   ui->setupUi(this);
   modelSampleRate = Voice2Text::getModelSampleRate (QString (MODEL));
   LOG("Model samplerate = %d\n", modelSampleRate);
+
+  // Debug only: go straight to convert a file
+  on_actionOpen_triggered();
 }
 
 AutyperMain::~AutyperMain()
@@ -78,6 +81,7 @@ void AutyperMain::on_actionOpen_triggered()
 {
 #if 1
   QString file("..\\..\\autyper\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3");
+  //QString file("..\\..\\autyper\\voices\\123.mp3");
 #else
   QProcessEnvironment p;
   QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
@@ -120,6 +124,7 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
   QString t("Text result: ");
   t = t + res->text + QString("\n");
   LOG(t.toStdString().c_str());
+  LOG("progress = %d\n", res->progress);
   if ( (res->result_code == Voice2Text::PARTIAL_TEXT) ||
        (res->result_code == Voice2Text::FINAL_TEXT) ) {
 

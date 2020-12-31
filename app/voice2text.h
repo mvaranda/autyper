@@ -20,6 +20,7 @@
 
 #include <QThread>
 #include <QAudioDecoder>
+#include <stdint.h>
 #include "feederbase.h"
 
 #define   AUDIO_BUFFER_NUM_SAMPLES  (16 * 1024) // about 1 second (buffer is short... therefore size in bytes is double (32K)
@@ -43,7 +44,8 @@ public:
   public:
     QString   text;
     Result_t  result_code;
-    CResult(Result_t code, QString txt) { text = txt; result_code = code; }
+    uint32_t  progress;
+    CResult(Result_t code, QString txt, uint32_t _progress) { text = txt; result_code = code; progress =_progress; }
   };
 
   static uint32_t getModelSampleRate (QString filanema);

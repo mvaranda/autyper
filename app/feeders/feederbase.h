@@ -64,6 +64,7 @@ private:
   //-------- private vaiables ---------
   feeder_t      feeder_type;
   QString       input;
+  uint32_t      total_read;
 //  sample_t      bufin[RESAMPLE_NUM_SAMPLES]; // for resample
 
 protected:

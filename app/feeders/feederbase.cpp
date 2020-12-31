@@ -16,12 +16,14 @@
  */
 
 #include "feederbase.h"
+#include "log.h"
 
 
 FeederBase::FeederBase(QString input_name, uint32_t model_samplerate)
 {
   input = input_name;
   modelSamplerate = model_samplerate;
+  total_read = 0;
 }
 
 feeder_t FeederBase::getType(void)
@@ -37,8 +39,9 @@ QString FeederBase::getInputName(void)
 feeder_res_t FeederBase::getSamples(sample_t * samples, uint32_t num_req_samples, uint32_t * num_deliver_samples, uint32_t * progress)
 {
   int nread = fread(samples, 1, num_req_samples * 2, samples_fh);
+  total_read += nread;
   *num_deliver_samples = nread / 2;
-  *progress = (nread * 100) / samples_file_size;
+  *progress = (total_read * 100) / samples_file_size;
 
 }
 
