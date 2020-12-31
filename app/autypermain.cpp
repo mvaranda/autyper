@@ -24,6 +24,10 @@
 #include <QFileDialog>
 #include "feederfactory.h"
 #include <QMessageBox>
+#include "version.h"
+
+// Debug only: go straight to convert a file
+//#define OPEN_FILE_AT_STARTUP
 
 // hardcode for now:
 #define MODEL "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.pbmm"
@@ -32,36 +36,19 @@
 
 extern int audio2text(int argc, char **argv);
 
-#if 1
-static const char * args [7] = {
-  "test",
-  "--model",
-  "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.pbmm",
-  "--scorer",
-  "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.scorer",
-  "--audio",
-  "..\\..\\autyper\\deepspeech\\models\\2830-3980-0043.wav" };
-#else
-static const char * args [7] = {
-  "test",
-  "--model",
-  "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.pbmm",
-  "--scorer",
-  "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.2-models.scorer",
-  "--audio",
-  "c:\\Users\\mvaranda\\voices\\invisibleman_Mono_16000_16_64kbs.wav" };
-#endif
-
 AutyperMain::AutyperMain(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::AutyperMain)
 {
   ui->setupUi(this);
+  setWindowTitle("AuTyper - Version " AuTyperVersion);
   modelSampleRate = Voice2Text::getModelSampleRate (QString (MODEL));
   LOG("Model samplerate = %d\n", modelSampleRate);
 
   // Debug only: go straight to convert a file
+#ifdef OPEN_FILE_AT_STARTUP
   on_actionOpen_triggered();
+#endif
 }
 
 AutyperMain::~AutyperMain()
@@ -79,7 +66,7 @@ void AutyperMain::startVoice2TextThread(QString filename, FeederBase * feeder)
 
 void AutyperMain::on_actionOpen_triggered()
 {
-#if 1
+#ifdef OPEN_FILE_AT_STARTUP
   QString file("..\\..\\autyper\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3");
   //QString file("..\\..\\autyper\\voices\\123.mp3");
 #else

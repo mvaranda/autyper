@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/rec">
+        <file>images/audio-x-speex+ogg.png</file>
+        <file>images/text-plain.png</file>
+    </qresource>
+</RCC>

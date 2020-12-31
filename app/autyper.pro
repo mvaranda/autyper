@@ -30,6 +30,7 @@ HEADERS += \
     feeders/feederbase.h \
     feeders/feederfactory.h \
     log.h \
+    version.h \
     voice2text.h
 
 FORMS += \
@@ -55,3 +56,6 @@ INCLUDEPATH += $$PWD/../app/feeders
 INCLUDEPATH += $$PWD/../app
 INCLUDEPATH += $$PWD/../libmad
 DEPENDPATH += $$PWD/../deepspeech/include
+
+RESOURCES += \
+  resource.qrc
