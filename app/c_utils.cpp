@@ -351,11 +351,9 @@ int resample( const char * filename, unsigned int samplerate_in,
   while ( (nread = fread( &bufin[RESAMPLE_NUM_SAMPLES - samples_available_space], 1, samples_available_space * sizeof(sample_t), fh) ) > 0) {
     nsamples = nsamples_moved + nread/sizeof(sample_t);
     if (nsamples < 4) {
-      LOG("resample: less than 4 samples remaining... drop them.\n");
+      // LOG("resample: less than 4 samples remaining... drop them.\n");
       break;
     }
-
-    LOG("nsamples = %d\n", nsamples);
 
     while (1) {
 
@@ -365,7 +363,7 @@ int resample( const char * filename, unsigned int samplerate_in,
       // V = S[ int(i) ]
       modf(i, &integer);
       if ( (integer >= RESAMPLE_NUM_SAMPLES) || (integer >= nsamples) ) {
-        LOG("Before sample not available\n");
+        // LOG("Before sample not available\n");
         samples_available_space = RESAMPLE_NUM_SAMPLES;
         nsamples_moved = 0;
         T -= St * nsamples;
@@ -381,7 +379,7 @@ int resample( const char * filename, unsigned int samplerate_in,
       // Vn = S[ int(i + 1) ]
       modf(i + 1.0, &integer);
       if (integer >= RESAMPLE_NUM_SAMPLES) {
-        LOG("After sample not available\n");
+        // LOG("After sample not available\n");
         // we need to move the last sample to the begining
         bufin[0] = V;
         nsamples_moved = 1;
@@ -436,7 +434,7 @@ int resample( const char * filename, unsigned int samplerate_in,
 unsigned int getMp3SampleRate( void ) {return input_samplerate; }
 
 
-FILE * convertMp3ToRaw(const char * mp3file, const char * path)
+FILE * convertMp3ToRaw(const char * mp3file, const char * path, uint32_t model_samplerate)
 {
   FILE * raw_file_h = NULL;
   char filename[512];
@@ -453,7 +451,7 @@ FILE * convertMp3ToRaw(const char * mp3file, const char * path)
     return NULL;
   }
 
-  if (DEEPSPEECH_SAMPLERATE == input_samplerate) { // no need to resample
+  if (model_samplerate == input_samplerate) { // no need to resample
     return (fopen(filename, "rb"));
   }
 
@@ -462,7 +460,7 @@ FILE * convertMp3ToRaw(const char * mp3file, const char * path)
   strcat(resample_file, FILE_RAW_FROM_RESAMPLER);
 
   if (resample(  filename, input_samplerate,
-                     resample_file, DEEPSPEECH_SAMPLERATE)) {
+                     resample_file, model_samplerate)) {
     return NULL;
   }
 

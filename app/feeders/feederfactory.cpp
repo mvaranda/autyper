@@ -25,7 +25,7 @@
 
 //}
 
-FeederBase * FeederFactory::create(QString input)
+FeederBase * FeederFactory::create(QString input, uint32_t model_samplerate)
 {
   FeederBase * ret = NULL;
   QFileInfo fn(input);
@@ -33,7 +33,7 @@ FeederBase * FeederFactory::create(QString input)
 
   if (s == QString("mp3")) {
     LOG("create MP3 feeder");
-    ret = (FeederBase *) new FeederMp3(input);
+    ret = (FeederBase *) new FeederMp3(input, model_samplerate);
   }
   else if (s == QString("wav")) {
     LOG("create Wave feeder");

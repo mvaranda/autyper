@@ -52,7 +52,7 @@ public:
   };
   //-------- public methods ------
 
-  FeederBase(QString input_name);
+  FeederBase(QString input_name, uint32_t model_samplerate);
   virtual ~FeederBase() {}
   feeder_t getType(void);
   QString getInputName(void);
@@ -70,6 +70,7 @@ protected:
   FeederBase();
   FILE *      samples_fh;
   uint32_t    samples_file_size;
+  uint32_t    modelSamplerate;
 };
 
 #endif // FEEDERBASE_H

@@ -27,15 +27,29 @@
   #include <malloc.h>
 #endif
 
-
-#define MODEL "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.pbmm"
-#define SCORER "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.scorer"
-
 Voice2Text::Voice2Text(): decoder(NULL)
 {
 
 }
 
+uint32_t Voice2Text::getModelSampleRate (QString filaname)
+{
+  uint32_t ret = 0;
+  ModelState* ctx = NULL;
+  // sphinx-doc: c_ref_model_start
+  int status = DS_CreateModel(filaname.toStdString().c_str(), &ctx);
+  if (status == 0) {
+    ret = DS_GetModelSampleRate(ctx);
+  }
+  else {
+    char* error = DS_ErrorCodeToErrorMessage(status);
+    LOG_E("Could not create model: %s\n", error);
+  }
+  if (ctx) {
+    DS_FreeModel(ctx);
+  }
+  return ret;
+}
 
 
 void Voice2Text::run (void)
@@ -48,7 +62,7 @@ void Voice2Text::run (void)
   /* ... here is the expensive or blocking operation ... */
   ModelState* ctx;
   // sphinx-doc: c_ref_model_start
-  int status = DS_CreateModel(MODEL, &ctx);
+  int status = DS_CreateModel(model_fn.toStdString().c_str(), &ctx);
   if (status != 0) {
     char* error = DS_ErrorCodeToErrorMessage(status);
     LOG_E("Could not create model: %s\n", error);
@@ -60,7 +74,7 @@ void Voice2Text::run (void)
 
     LOG("HERE 2");
 
-  status = DS_EnableExternalScorer(ctx, SCORER);
+  status = DS_EnableExternalScorer(ctx, scorer_fn.toStdString().c_str());
   if (status != 0) {
     char* error = DS_ErrorCodeToErrorMessage(status);
     LOG_E("Could not create scorer: %s\n", error);
@@ -81,9 +95,6 @@ void Voice2Text::run (void)
     return;
   }
 
-  size_t off = 0;
-  const char *last = nullptr;
-  const char *prev = nullptr;
   uint32_t nsamples, progress;
 
     LOG("HERE 3");
@@ -92,13 +103,13 @@ void Voice2Text::run (void)
     feeder->getSamples(aBuffer, AUDIO_BUFFER_NUM_SAMPLES, &nsamples, &progress);
     if (nsamples == 0) {
       txt = DS_FinishStream(stream_st_ctx);
-      LOG_E("DS_CreateStream: error = %d", status);
       CResult * res = new CResult(FINAL_TEXT, QString(txt) );
       DS_FreeString((char *) txt);
       emit resultReady(res);
       break;
     }
 
+  LOG("HERE 4");
     DS_FeedAudioContent(stream_st_ctx, aBuffer, nsamples);
     const char* partial = DS_IntermediateDecode(stream_st_ctx);
     CResult * res = new CResult(PARTIAL_TEXT, QString(partial) );
@@ -106,36 +117,7 @@ void Voice2Text::run (void)
     emit resultReady(res);
   }
 
-#if 0
-  size_t aBufferSize;
-  while (off < aBufferSize) {
-    size_t cur = aBufferSize - off > stream_size ? stream_size : aBufferSize - off;
-    DS_FeedAudioContent(stream_st_ctx, aBuffer + off, cur);
-    off += cur;
-    prev = last;
-    const char* partial = DS_IntermediateDecode(stream_st_ctx);
-    if (last == nullptr || strcmp(last, partial)) {
-      LOG("%s\n", partial);
-      last = partial;
-    } else {
-      DS_FreeString((char *) partial);
-    }
-    if (prev != nullptr && prev != last) {
-      DS_FreeString((char *) prev);
-    }
-  }
-  if (last != nullptr) {
-    DS_FreeString((char *) last);
-  }
-  res.string = DS_FinishStream(stream_st_ctx);
-
-
-  //CResult * res = new CResult(FINAL_TEXT, QString("All done!") );
-  //emit resultReady(res);
-#endif
-
   quit();
-  //wait();
 }
 
 Voice2Text::Voice2Text( QString filename, void * handler_func, void * handler_ctx)
@@ -143,9 +125,11 @@ Voice2Text::Voice2Text( QString filename, void * handler_func, void * handler_ct
 
 }
 
-Voice2Text::Voice2Text( QString filename, FeederBase * _feeder)
+Voice2Text::Voice2Text( QString filename, QString model, QString scorer, FeederBase * _feeder)
 {
   this->filename = filename;
+  model_fn = model;
+  scorer_fn = scorer;
   feeder =_feeder;
 }
 

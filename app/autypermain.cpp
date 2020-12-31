@@ -25,6 +25,10 @@
 #include "feederfactory.h"
 #include <QMessageBox>
 
+// hardcode for now:
+#define MODEL "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.pbmm"
+#define SCORER "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.scorer"
+// TODO: add model management for models
 
 extern int audio2text(int argc, char **argv);
 
@@ -53,7 +57,8 @@ AutyperMain::AutyperMain(QWidget *parent)
   , ui(new Ui::AutyperMain)
 {
   ui->setupUi(this);
-  //startVoice2TextThread(QString("C:\\Users\\mvaranda\\voices\\invisibleman_Mono_22050_32_64kbs_short.wav"));
+  modelSampleRate = Voice2Text::getModelSampleRate (QString (MODEL));
+  LOG("Model samplerate = %d\n", modelSampleRate);
 }
 
 AutyperMain::~AutyperMain()
@@ -63,7 +68,7 @@ AutyperMain::~AutyperMain()
 
 void AutyperMain::startVoice2TextThread(QString filename, FeederBase * feeder)
 {
-    Voice2Text *workerThread = new Voice2Text(filename, feeder);
+    Voice2Text *workerThread = new Voice2Text(filename, QString(MODEL), QString(SCORER), feeder);
     connect(workerThread, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
     //connect(workerThread, &Voice2Text::finished, workerThread, &QObject::deleteLater);
     workerThread->start();
@@ -89,7 +94,7 @@ void AutyperMain::on_actionOpen_triggered()
     LOG(d.toStdString().c_str());
     FeederBase * f = NULL;
     try {
-      f = FeederFactory::create(file);
+      f = FeederFactory::create(file, modelSampleRate);
     } catch (FeederBase::FeederException e) {
       QMessageBox msgBox(QMessageBox::Warning, "Voice Input fail", e.msg);
       msgBox.exec();

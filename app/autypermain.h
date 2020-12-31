@@ -40,6 +40,7 @@ private slots:
 
 private:
   Ui::AutyperMain *ui;
+  uint32_t    modelSampleRate;
   void startVoice2TextThread(QString filename, FeederBase * feeder);
 
 };

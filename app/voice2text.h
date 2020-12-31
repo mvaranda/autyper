@@ -46,9 +46,11 @@ public:
     CResult(Result_t code, QString txt) { text = txt; result_code = code; }
   };
 
+  static uint32_t getModelSampleRate (QString filanema);
+
   Voice2Text();
   Voice2Text( QString filename, void * handler_func, void * handler_ctx);
-  Voice2Text( QString filename, FeederBase * _feeder);
+  Voice2Text( QString filename, QString model, QString scorer, FeederBase * _feeder);
 
 
 private:
@@ -56,6 +58,8 @@ private:
   // private variables
   QAudioDecoder   * decoder;
   QString           filename;
+  QString           model_fn;
+  QString           scorer_fn;
   FeederBase      * feeder;
   sample_t          aBuffer[AUDIO_BUFFER_NUM_SAMPLES];
 

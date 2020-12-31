@@ -21,23 +21,15 @@
 
 #include <stdio.h>
 #include <QDebug>
-#if 1
-#define LOG         qDebug
-#define LOG_E       qDebug
-#define LOG_I       qDebug
-#define LOG_W       qDebug
-#else
-#define LOG         printf
-#define LOG_E       printf
-#define LOG_I       printf
-#define LOG_W       printf
-#endif
 
+#define LOG         qDebug
+#define LOG_E       qCritical
+#define LOG_I       qInfo
+#define LOG_W       qWarning
 
 #ifdef __cplusplus
   extern "C" {
 #endif
-
 
   void qDebugC(char * format,...);
 

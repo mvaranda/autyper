@@ -15,16 +15,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include <stdio.h>
-//#include <unistd.h>
-//#include <math.h>
 #include "feederbase.h"
-//#include "log.h"
 
 
-FeederBase::FeederBase(QString input_name)
+FeederBase::FeederBase(QString input_name, uint32_t model_samplerate)
 {
   input = input_name;
+  modelSamplerate = model_samplerate;
 }
 
 feeder_t FeederBase::getType(void)

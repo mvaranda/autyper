@@ -22,7 +22,7 @@ class FeederFactory
 {
 public:
   //FeederFactory();
-  static FeederBase * create(QString input_name);
+  static FeederBase * create(QString input_name, uint32_t model_samplerate);
 
 };
 

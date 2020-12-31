@@ -17,6 +17,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <stdio.h>
+#include <stdint.h>
 
 #define MAX_FILE_SIZE                   (1024 * 1024 * 10) // 10 Mbytes
 #define FILE_RAW_FROM_MP3               "\\samples.$$$"
@@ -32,7 +33,7 @@ extern "C" {
 #endif
 
 unsigned int getMp3SampleRate( void );
-FILE * convertMp3ToRaw(const char * mp3file, const char * path);
+FILE * convertMp3ToRaw(const char * mp3file, const char * path, uint32_t model_samplerate);
 int resample( const char * filename, unsigned int samplerate_in,
               const char * file_out, unsigned int samplerate_out);
 

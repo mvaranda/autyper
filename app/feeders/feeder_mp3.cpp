@@ -19,11 +19,11 @@
 #include "feeder_mp3.h"
 #include "log.h"
 
-FeederMp3::FeederMp3(QString input):FeederBase(input)
+FeederMp3::FeederMp3(QString input, uint32_t model_samplerate):FeederBase(input, model_samplerate)
 {
   QProcessEnvironment p;
   QString fp = p.systemEnvironment().value(QString("TEMP"));
-  samples_fh = convertMp3ToRaw(input.toStdString().c_str(), (const char *) fp.toStdString().c_str());
+  samples_fh = convertMp3ToRaw(input.toStdString().c_str(), (const char *) fp.toStdString().c_str(), modelSamplerate);
   if (samples_fh == NULL) {
     throw FeederException("Fail to convert MP3 file", 0);
   }
