@@ -20,6 +20,8 @@
 
 
 #include <QMainWindow>
+#include <QList>
+#include <QPlainTextEdit>
 #include "voice2text.h"
 
 QT_BEGIN_NAMESPACE
@@ -38,9 +40,13 @@ private slots:
   void on_actionOpen_triggered();
   void handle_voice2text(Voice2Text::CResult * res);
 
+  void on_actionNew_triggered();
+
 private:
-  Ui::AutyperMain *ui;
-  uint32_t    modelSampleRate;
+  Ui::AutyperMain * ui;
+  uint32_t          modelSampleRate;
+  int               name_cnt;
+  QList<QPlainTextEdit *> mdiList;
   void startVoice2TextThread(QString filename, FeederBase * feeder);
 
 };

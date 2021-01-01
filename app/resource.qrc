@@ -2,5 +2,14 @@
     <qresource prefix="/rec">
         <file>images/audio-x-speex+ogg.png</file>
         <file>images/text-plain.png</file>
+        <file>images/accessories-text-editor.png</file>
+        <file>images/applications-system.png</file>
+        <file>images/audio-input-microphone.png</file>
+        <file>images/autyper_icon.ico</file>
+        <file>images/autyper_icon_128.png</file>
+        <file>images/media-floppy.png</file>
+        <file>images/media-tape.png</file>
+        <file>images/preferences-system.png</file>
+        <file>images/text-plain-new.png</file>
     </qresource>
 </RCC>
