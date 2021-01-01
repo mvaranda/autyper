@@ -47,6 +47,7 @@ private:
   uint32_t          modelSampleRate;
   int               name_cnt;
   QList<QPlainTextEdit *> mdiList;
+  QPlainTextEdit *  activeText;
   void startVoice2TextThread(QString filename, FeederBase * feeder);
 
 };

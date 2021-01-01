@@ -117,7 +117,14 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
   LOG("progress = %d\n", res->progress);
   if ( (res->result_code == Voice2Text::PARTIAL_TEXT) ||
        (res->result_code == Voice2Text::FINAL_TEXT) ) {
-
+    if (activeText) {
+      activeText->moveCursor (QTextCursor::End);
+      activeText->insertPlainText (res->text + QString(" "));
+      activeText->moveCursor (QTextCursor::End);
+    }
+    else {
+      LOG("no active text... dropping\n");
+    }
   }
   else {
     QMessageBox msgBox(QMessageBox::Warning, "Voice Input fail", res->text);
@@ -128,11 +135,19 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
 }
 
 #define UNTITLED_NAME "Untitled"
+#define FONT_SIZE     14
 
 void AutyperMain::on_actionNew_triggered()
 {
 
   QPlainTextEdit * e = new QPlainTextEdit(this);
+
+  QFont f1 = e->font();
+  QFontMetrics fm(f1);
+  f1.setPointSize(FONT_SIZE);
+  e->setFont(f1);  //<<<<<<<< Add this
+  //e->setFontPointSize()
+
   QMdiSubWindow * sub = ui->mdiArea->addSubWindow(e);
   e->setWindowIcon(QIcon("images/autyper_icon.ico"));
   //ui->mdiArea->subWindowList().at(0)->setWindowIcon(QIcon(":/rec/images/autyper_icon.ico"));
@@ -145,6 +160,7 @@ void AutyperMain::on_actionNew_triggered()
   }
   e->showMaximized();
   mdiList.append(e);
+  activeText = e;
 
 #ifdef OPEN_FILE_AT_STARTUP
   QString file("..\\..\\autyper\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3");
