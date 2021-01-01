@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include "feederbase.h"
 
-#define   AUDIO_BUFFER_NUM_SAMPLES  (16 * 1024) // about 1 second (buffer is short... therefore size in bytes is double (32K)
+#define   AUDIO_BUFFER_NUM_SAMPLES  (6 * 16 * 1024) // about 6 second (buffer is short... therefore size in bytes is double (32K)
 
 class Voice2Text: public QThread
 {
@@ -68,6 +68,7 @@ private:
   // private methods
   void thread(void);
   bool convertToRaw(QString filename);
+  uint32_t scanForSilence(void);
 
 private slots:
 
