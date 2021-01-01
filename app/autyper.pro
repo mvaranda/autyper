@@ -16,6 +16,7 @@ DEFINES += AUTYPER_APP
 
 SOURCES += \
     c_utils.cpp \
+    dlgprogress.cpp \
     feeders/feeder_mp3.cpp \
     feeders/feederbase.cpp \
     feeders/feederfactory.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     ../deepspeech/include/deepspeech.h \
     autypermain.h \
     c_utils.h \
+    dlgprogress.h \
     feeders/feeder_mp3.h \
     feeders/feederbase.h \
     feeders/feederfactory.h \
@@ -36,7 +38,8 @@ HEADERS += \
     voice2text.h
 
 FORMS += \
-    autypermain.ui
+    autypermain.ui \
+    dlgprogress.ui
 
 TRANSLATIONS += \
     autyper_en_US.ts

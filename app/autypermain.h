@@ -23,6 +23,7 @@
 #include <QList>
 #include <QPlainTextEdit>
 #include "voice2text.h"
+#include "dlgprogress.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class AutyperMain; }
@@ -48,6 +49,7 @@ private:
   int               name_cnt;
   QList<QPlainTextEdit *> mdiList;
   QPlainTextEdit *  activeText;
+  DlgProgress *     dlgProgress;
   void startVoice2TextThread(QString filename, FeederBase * feeder);
 
 };

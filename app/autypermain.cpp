@@ -47,6 +47,7 @@ AutyperMain::AutyperMain(QWidget *parent)
   setWindowTitle("AuTyper - Version " AuTyperVersion);
   modelSampleRate = Voice2Text::getModelSampleRate (QString (MODEL));
   LOG("Model samplerate = %d\n", modelSampleRate);
+  dlgProgress = new DlgProgress(this);
 
   // Debug only: go straight to convert a file
 #ifdef OPEN_FILE_AT_STARTUP
@@ -117,6 +118,7 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
   LOG("progress = %d\n", res->progress);
   if ( (res->result_code == Voice2Text::PARTIAL_TEXT) ||
        (res->result_code == Voice2Text::FINAL_TEXT) ) {
+    dlgProgress->update(res->progress);
     if (activeText) {
       activeText->moveCursor (QTextCursor::End);
       activeText->insertPlainText (res->text + QString(" "));
@@ -124,6 +126,9 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
     }
     else {
       LOG("no active text... dropping\n");
+    }
+    if (res->result_code == Voice2Text::FINAL_TEXT) {
+      dlgProgress->hide();
     }
   }
   else {
@@ -193,7 +198,8 @@ void AutyperMain::on_actionNew_triggered()
       LOG("Could not create a feeded");
       return;
     }
-
+    dlgProgress->update(0);
+    dlgProgress->show();
     startVoice2TextThread(file, f);
   }
   else {
