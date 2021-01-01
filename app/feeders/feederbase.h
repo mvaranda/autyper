@@ -53,7 +53,7 @@ public:
   //-------- public methods ------
 
   FeederBase(QString input_name, uint32_t model_samplerate);
-  virtual ~FeederBase() {}
+  virtual ~FeederBase();
   feeder_t getType(void);
   QString getInputName(void);
   virtual feeder_res_t getSamples(sample_t * samples, uint32_t num_req_samples, uint32_t * num_deliver_samples, uint32_t * progress);

@@ -26,6 +26,12 @@ FeederBase::FeederBase(QString input_name, uint32_t model_samplerate)
   total_read = 0;
 }
 
+FeederBase::~FeederBase()
+{
+  if (samples_fh)
+    fclose(samples_fh);
+}
+
 feeder_t FeederBase::getType(void)
 {
   return feeder_type;

@@ -20,5 +20,5 @@ void DlgProgress::update(int v)
 
 void DlgProgress::on_pushButton_clicked()
 {
-
+  emit canceReqToMain();
 }

@@ -20,6 +20,9 @@ public:
 private slots:
   void on_pushButton_clicked();
 
+signals:
+  void canceReqToMain(void);
+
 private:
   Ui::DlgProgress *ui;
 };

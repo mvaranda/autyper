@@ -43,11 +43,13 @@ AutyperMain::AutyperMain(QWidget *parent)
   , ui(new Ui::AutyperMain)
 {
   name_cnt=0;
+  workerThread = NULL;
   ui->setupUi(this);
   setWindowTitle("AuTyper - Version " AuTyperVersion);
   modelSampleRate = Voice2Text::getModelSampleRate (QString (MODEL));
   LOG("Model samplerate = %d\n", modelSampleRate);
   dlgProgress = new DlgProgress(this);
+  connect(dlgProgress, &DlgProgress::canceReqToMain, this, &AutyperMain::handleAbortRequest);
 
   // Debug only: go straight to convert a file
 #ifdef OPEN_FILE_AT_STARTUP
@@ -60,9 +62,16 @@ AutyperMain::~AutyperMain()
   delete ui;
 }
 
+void AutyperMain::handleAbortRequest(void)
+{
+  if(workerThread) {
+    workerThread->abortRequest();
+  }
+}
+
 void AutyperMain::startVoice2TextThread(QString filename, FeederBase * feeder)
 {
-    Voice2Text *workerThread = new Voice2Text(filename, QString(MODEL), QString(SCORER), feeder);
+    workerThread = new Voice2Text(filename, QString(MODEL), QString(SCORER), feeder);
     connect(workerThread, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
     //connect(workerThread, &Voice2Text::finished, workerThread, &QObject::deleteLater);
     workerThread->start();
@@ -116,6 +125,11 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
   t = t + res->text + QString("\n");
   LOG(t.toStdString().c_str());
   LOG("progress = %d\n", res->progress);
+
+  if (res->result_code == Voice2Text::ABORT_TEXT) {
+    dlgProgress->hide();
+  }
+
   if ( (res->result_code == Voice2Text::PARTIAL_TEXT) ||
        (res->result_code == Voice2Text::FINAL_TEXT) ) {
     dlgProgress->update(res->progress);

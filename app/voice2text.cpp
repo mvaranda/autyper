@@ -33,6 +33,12 @@ Voice2Text::Voice2Text(): decoder(NULL)
 
 }
 
+void Voice2Text::abortRequest(void)
+{
+  abort = true;
+}
+
+
 uint32_t Voice2Text::getModelSampleRate (QString filaname)
 {
   uint32_t ret = 0;
@@ -137,6 +143,13 @@ void Voice2Text::run (void)
 
 
   while (1) {
+    if (abort) {
+      delete feeder;
+      CResult * res = new CResult(ABORT_TEXT, QString("conversion Aborted"), 0 );
+      emit resultReady(res);
+      break;
+    }
+
     feeder->getSamples(&aBuffer[left_over_samples], AUDIO_BUFFER_NUM_SAMPLES - left_over_samples, &fromfeeder, &progress);
     if ((fromfeeder +  left_over_samples) < AUDIO_BUFFER_NUM_SAMPLES) { // last block
       txt = DS_SpeechToText(ctx, aBuffer, fromfeeder +  left_over_samples);

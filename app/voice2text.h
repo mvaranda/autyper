@@ -36,6 +36,7 @@ public:
   typedef enum {
     PARTIAL_TEXT,
     FINAL_TEXT,
+    ABORT_TEXT,
     ERROR_BAD_MODEL_FILE,
     ERROR_BAD_SCORER_FILE,
   } Result_t;
@@ -53,6 +54,7 @@ public:
   Voice2Text();
   Voice2Text( QString filename, void * handler_func, void * handler_ctx);
   Voice2Text( QString filename, QString model, QString scorer, FeederBase * _feeder);
+  void abortRequest(void);
 
 
 private:
@@ -64,6 +66,7 @@ private:
   QString           scorer_fn;
   FeederBase      * feeder;
   sample_t          aBuffer[AUDIO_BUFFER_NUM_SAMPLES];
+  bool              abort;
 
   // private methods
   void thread(void);

@@ -40,11 +40,13 @@ public:
 private slots:
   void on_actionOpen_triggered();
   void handle_voice2text(Voice2Text::CResult * res);
+  void handleAbortRequest(void);
 
   void on_actionNew_triggered();
 
 private:
   Ui::AutyperMain * ui;
+  Voice2Text *      workerThread;
   uint32_t          modelSampleRate;
   int               name_cnt;
   QList<QPlainTextEdit *> mdiList;
