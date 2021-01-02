@@ -63,7 +63,28 @@
     <addaction name="separator"/>
     <addaction name="actionSave"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionAppend_Voice"/>
+    <addaction name="separator"/>
+    <addaction name="actionChange_Model"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionHelp"/>
+    <addaction name="actionInfo"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -85,6 +106,7 @@
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="actionAppend_Voice"/>
   </widget>
   <action name="actionOpen">
    <property name="icon">
@@ -129,6 +151,55 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionChange_Model">
+   <property name="text">
+    <string>Change Model</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </action>
+  <action name="actionInfo">
+   <property name="text">
+    <string>Info</string>
+   </property>
+  </action>
+  <action name="actionAppend_Voice">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/rec/images/audio-x-speex+ogg.png</normaloff>:/rec/images/audio-x-speex+ogg.png</iconset>
+   </property>
+   <property name="text">
+    <string>Append Voice</string>
+   </property>
+   <property name="toolTip">
+    <string>Append Voice to existing text</string>
+   </property>
+   <property name="shortcut">
+    <string></string>
    </property>
   </action>
  </widget>

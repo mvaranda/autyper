@@ -57,6 +57,7 @@ public:
   Voice2Text( QString model, QString scorer);
   void abortRequest(void);
   void startConvertion(QString filename);
+  void updateModel(QString model, QString scorer);
 
 
 private:

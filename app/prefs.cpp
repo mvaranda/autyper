@@ -35,7 +35,6 @@ void Prefs::load(void)
   LOGS(active_scorer_file);
   LOGS(info_url);
   LOG("--------------------\n");
-
 #endif
 }
 
@@ -43,8 +42,10 @@ void Prefs::save(void)
 {
   QSettings p("VarandaLabs", "AuTyper");
 
-  p.setValue("user_path", QVariant(user_path));
-  p.value("active_model_file", QVariant(active_model_file));
-  p.value("active_scorer_file", QVariant(active_scorer_file));
-  p.value("info_url", QVariant(info_url));
+  p.setValue("user_path", user_path);
+  p.setValue("active_model_file", active_model_file);
+  p.setValue("active_model_file", active_model_file);
+  p.setValue("active_scorer_file", active_scorer_file);
+  p.setValue("info_url", info_url);
+  p.sync();
 }

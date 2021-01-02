@@ -48,6 +48,12 @@ private slots:
 
   void on_actionSave_triggered();
 
+  void on_actionChange_Model_triggered();
+
+  void on_actionAppend_Voice_triggered();
+
+  void on_actionHelp_triggered();
+
 private:
   Ui::AutyperMain * ui;
   Voice2Text *      voice2Text;
@@ -56,6 +62,8 @@ private:
   QPlainTextEdit *  activeText;
   DlgProgress *     dlgProgress;
   void startVoice2TextThread(QString filename, FeederBase * feeder);
+  void enableConvControls(void);
+  void disableConvControls(void);
 
 };
 #endif // AUTYPERMAIN_H

@@ -189,6 +189,16 @@ Voice2Text::Voice2Text( QString model, QString scorer)
   model_ctx = NULL;
 }
 
+void Voice2Text::updateModel(QString model, QString scorer)
+{
+  model_fn = model;
+  scorer_fn = scorer;
+  if (model_ctx == nullptr) {
+    DS_FreeModel(model_ctx);
+    model_ctx = NULL;
+  }
+}
+
 void Voice2Text::startConvertion(QString filename)
 {
   this->filename = filename;

@@ -31,34 +31,59 @@
 #include "log.h"
 #include "version.h"
 #include "prefs.h"
+#include "dlgmodelref.h"
+#include <QDesktopServices>
+
+#define HELP_URL "http://www.varanda.ca/autyper/help.html"
+
 
 // Debug only: go straight to convert a file
 //#define OPEN_FILE_AT_STARTUP
 
 // hardcode for now:
-#define MODEL "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.pbmm"
-#define SCORER "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.scorer"
+//#define MODEL "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.pbmm"
+//#define SCORER "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.scorer"
 // TODO: add model management for models
 
+#define UNTITLED_NAME "Untitled"
+#define FONT_SIZE     14
+
 extern int audio2text(int argc, char **argv);
+
+
+/******************************************
+ *
+ *              Constructor
+ *
+ ******************************************/
 
 AutyperMain::AutyperMain(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::AutyperMain)
 {
   name_cnt=0;
-  voice2Text = new Voice2Text( QString(MODEL), QString(SCORER) );
+
   ui->setupUi(this);
   setWindowTitle("AuTyper - Version " AuTyperVersion);
   dlgProgress = new DlgProgress(this);
 
-  connect(dlgProgress, &DlgProgress::canceReqToMain, this, &AutyperMain::handleAbortRequest);
-  connect(voice2Text, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
 
   appDataPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QString("/");
   LOGS(appDataPath);
 
+  // We must have model setup... otherwise, we set now:
   Prefs::load();
+  if ( (QFile::exists(Prefs::active_model_file) == false) ||
+       (QFile::exists(Prefs::active_scorer_file) == false) ) {
+    on_actionChange_Model_triggered();
+  }
+
+
+  voice2Text = new Voice2Text( Prefs::active_model_file,Prefs::active_scorer_file );
+
+  connect(dlgProgress, &DlgProgress::canceReqToMain, this, &AutyperMain::handleAbortRequest);
+  connect(voice2Text, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
+
 
   // Debug only: go straight to convert a file
 #ifdef OPEN_FILE_AT_STARTUP
@@ -78,10 +103,11 @@ void AutyperMain::handleAbortRequest(void)
   }
 }
 
-void AutyperMain::on_actionOpen_triggered()
-{
-
-}
+/******************************************
+ *
+ *        VoiceToText Result Handler
+ *
+ ******************************************/
 
 void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
 {
@@ -97,7 +123,12 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
     dlgProgress->update(res->progress);
     if (activeText) {
       activeText->moveCursor (QTextCursor::End);
-      activeText->insertPlainText (res->text + QString(" "));
+      if (res->result_code == Voice2Text::FINAL_TEXT) {
+        activeText->insertPlainText (res->text + QString("\n"));
+      }
+      else {
+        activeText->insertPlainText (res->text + QString(" "));
+      }
       activeText->moveCursor (QTextCursor::End);
     }
     else {
@@ -105,19 +136,24 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
     }
     if (res->result_code == Voice2Text::FINAL_TEXT) {
       dlgProgress->hide();
+      enableConvControls();
     }
   }
   else {
     dlgProgress->hide();
     QMessageBox msgBox(QMessageBox::Warning, "Voice Input fail", res->text);
     msgBox.exec();
+    enableConvControls();
   }
 
   delete res;
 }
 
-#define UNTITLED_NAME "Untitled"
-#define FONT_SIZE     14
+
+void AutyperMain::on_actionOpen_triggered()
+{
+
+}
 
 void AutyperMain::on_actionNew_triggered()
 {
@@ -131,7 +167,6 @@ void AutyperMain::on_actionNew_triggered()
 
   QMdiSubWindow * sub = ui->mdiArea->addSubWindow(e);
   e->setWindowIcon(QIcon("images/autyper_icon.ico"));
-  //ui->mdiArea->subWindowList().at(0)->setWindowIcon(QIcon(":/rec/images/autyper_icon.ico"));
   sub->setWindowIcon(QIcon(":/rec/images/autyper_icon.ico"));
   if (name_cnt++ != 0) {
     sub->setWindowTitle(QString::asprintf("%s%d.txt", UNTITLED_NAME, name_cnt++ ));
@@ -143,10 +178,6 @@ void AutyperMain::on_actionNew_triggered()
   mdiList.append(e);
   activeText = e;
 
-#ifdef OPEN_FILE_AT_STARTUP
-  QString file("..\\..\\autyper\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3");
-  //QString file("..\\..\\autyper\\voices\\123.mp3");
-#else
   QProcessEnvironment p;
   QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
   QString file = QFileDialog::getOpenFileName(this,
@@ -155,13 +186,14 @@ void AutyperMain::on_actionNew_triggered()
                                                tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
-#endif
+
   if (!file.isEmpty())
   {
     QString d ="Open file: " + file; // QDir::currentPath();
     LOGS(d);
     dlgProgress->update(0);
     dlgProgress->show();
+    disableConvControls();
     voice2Text->startConvertion(file);
   }
   else {
@@ -212,9 +244,81 @@ void AutyperMain::on_actionSave_triggered()
     msgBox.exec();
   }
 
-  //path.mid(path.lastIndexOf("/"));
-
   sub->setWindowTitle(qPath);
-  //sub->setWindowTitle( QFileInfo::fileName(qPath));
 
+}
+
+void  AutyperMain::enableConvControls(void)
+{
+  ui->actionNew->setEnabled(true);
+  ui->actionAppend_Voice->setEnabled(true);
+}
+
+void  AutyperMain::disableConvControls(void)
+{
+  ui->actionNew->setEnabled(false);
+  ui->actionAppend_Voice->setEnabled(false);
+}
+
+void AutyperMain::on_actionChange_Model_triggered()
+{
+    DlgModelRef d(this);
+    d.setModal(true);
+    d.exec();
+
+    if ( (QFile::exists(Prefs::active_model_file) == false) ||
+         (QFile::exists(Prefs::active_scorer_file) == false) ) {
+      disableConvControls();
+    }
+    else {
+      enableConvControls();
+      voice2Text->updateModel(Prefs::active_model_file, Prefs::active_scorer_file);
+    }
+
+}
+
+void AutyperMain::on_actionAppend_Voice_triggered()
+{
+  QMdiSubWindow * sub = nullptr;
+  if ((sub = ui->mdiArea->activeSubWindow()) == nullptr) {
+    QMessageBox msgBox(QMessageBox::Warning, "Warning", "No Text Window selected");
+    msgBox.exec();
+    return;
+  }
+
+  QPlainTextEdit * e = sub->findChild<QPlainTextEdit *>();
+  if (e == nullptr) {
+    QMessageBox msgBox(QMessageBox::Warning, "Warning", "unexpected empty window");
+    msgBox.exec();
+    return;
+  }
+  activeText = e;
+
+  QProcessEnvironment p;
+  QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
+  QString file = QFileDialog::getOpenFileName(this,
+                                               tr("Open Audio file"),
+                                               fp,
+                                               tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
+                                               0,
+                                               QFileDialog::DontResolveSymlinks);
+
+  if (!file.isEmpty())
+  {
+    QString d ="Open file: " + file; // QDir::currentPath();
+    LOGS(d);
+    dlgProgress->update(0);
+    dlgProgress->show();
+    disableConvControls();
+    voice2Text->startConvertion(file);
+  }
+  else {
+    LOG("Open audio file cancelled.");
+  }
+
+}
+
+void AutyperMain::on_actionHelp_triggered()
+{
+  QDesktopServices::openUrl ( QUrl(HELP_URL) );
 }
