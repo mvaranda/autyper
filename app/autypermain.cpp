@@ -34,7 +34,7 @@
 #include "dlgmodelref.h"
 #include <QDesktopServices>
 
-#define HELP_URL      "https://github.com/mvaranda/autyper/help"
+#define HELP_URL      "https://github.com/mvaranda/autyper/tree/master/help"
 #define UNTITLED_NAME "Untitled"
 #define FONT_SIZE     14
 
