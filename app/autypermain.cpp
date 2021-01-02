@@ -30,6 +30,7 @@
 #include "ui_autypermain.h"
 #include "log.h"
 #include "version.h"
+#include "prefs.h"
 
 // Debug only: go straight to convert a file
 //#define OPEN_FILE_AT_STARTUP
@@ -56,6 +57,8 @@ AutyperMain::AutyperMain(QWidget *parent)
 
   appDataPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QString("/");
   LOGS(appDataPath);
+
+  Prefs::load();
 
   // Debug only: go straight to convert a file
 #ifdef OPEN_FILE_AT_STARTUP

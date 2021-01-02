@@ -192,6 +192,7 @@ Voice2Text::Voice2Text( QString model, QString scorer)
 void Voice2Text::startConvertion(QString filename)
 {
   this->filename = filename;
+  abort = false;
   start();
 }
 

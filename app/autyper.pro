@@ -23,6 +23,7 @@ SOURCES += \
     log.cpp \
     main.cpp \
     autypermain.cpp \
+    prefs.cpp \
     voice2text.cpp
 
 HEADERS += \
@@ -34,6 +35,7 @@ HEADERS += \
     feeders/feederbase.h \
     feeders/feederfactory.h \
     log.h \
+    prefs.h \
     version.h \
     voice2text.h
 
