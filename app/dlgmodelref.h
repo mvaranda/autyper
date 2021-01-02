@@ -25,6 +25,7 @@ private slots:
   void on_bt_cancel_clicked();
 
 private:
+  void updateUserModelPath(QString filePath);
   Ui::DlgModelRef *ui;
   QString model;
   QString scorer;

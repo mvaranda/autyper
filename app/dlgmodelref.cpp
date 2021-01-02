@@ -17,11 +17,18 @@ DlgModelRef::~DlgModelRef()
   delete ui;
 }
 
+void DlgModelRef::updateUserModelPath(QString filePath)
+{
+  QDir d = QFileInfo(filePath).absoluteDir();
+  Prefs::user_model_path = d.absolutePath();
+  Prefs::save();
+}
+
 void DlgModelRef::on_bt_browse_model_clicked()
 {
   QString qPath = QFileDialog::getOpenFileName(this,
                                                tr("Select Model file"),
-                                               Prefs::user_path,
+                                               Prefs::user_model_path,
                                                tr("Model files (*.pbmm)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
@@ -30,6 +37,7 @@ void DlgModelRef::on_bt_browse_model_clicked()
   {
     return;
   }
+  updateUserModelPath(qPath);
   ui->t_model->setPlainText(qPath);
 
 }
@@ -38,7 +46,7 @@ void DlgModelRef::on_bt_browse_scorer_clicked()
 {
   QString qPath = QFileDialog::getOpenFileName(this,
                                                tr("Select Scorer file"),
-                                               Prefs::user_path,
+                                               Prefs::user_model_path,
                                                tr("Scorer files (*.scorer)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
@@ -47,6 +55,7 @@ void DlgModelRef::on_bt_browse_scorer_clicked()
   {
     return;
   }
+  updateUserModelPath(qPath);
   ui->t_scorer->setPlainText(qPath);
 
 }

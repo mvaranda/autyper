@@ -34,17 +34,7 @@
 #include "dlgmodelref.h"
 #include <QDesktopServices>
 
-#define HELP_URL "http://www.varanda.ca/autyper/help.html"
-
-
-// Debug only: go straight to convert a file
-//#define OPEN_FILE_AT_STARTUP
-
-// hardcode for now:
-//#define MODEL "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.pbmm"
-//#define SCORER "..\\..\\autyper\\deepspeech\\models\\deepspeech-0.9.3-models.scorer"
-// TODO: add model management for models
-
+#define HELP_URL      "https://github.com/mvaranda/autyper/help"
 #define UNTITLED_NAME "Untitled"
 #define FONT_SIZE     14
 
@@ -84,11 +74,6 @@ AutyperMain::AutyperMain(QWidget *parent)
   connect(dlgProgress, &DlgProgress::canceReqToMain, this, &AutyperMain::handleAbortRequest);
   connect(voice2Text, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
 
-
-  // Debug only: go straight to convert a file
-#ifdef OPEN_FILE_AT_STARTUP
-  on_actionOpen_triggered();
-#endif
 }
 
 AutyperMain::~AutyperMain()
@@ -101,6 +86,20 @@ void AutyperMain::handleAbortRequest(void)
   if(voice2Text) {
     voice2Text->abortRequest();
   }
+}
+
+void AutyperMain::updateUserPath(QString filePath)
+{
+  QDir d = QFileInfo(filePath).absoluteDir();
+  Prefs::user_path = d.absolutePath();
+  Prefs::save();
+}
+
+void  AutyperMain::updateUserAudioPath(QString filePath)
+{
+  QDir d = QFileInfo(filePath).absoluteDir();
+  Prefs::user_audio_path = d.absolutePath();
+  Prefs::save();
 }
 
 /******************************************
@@ -152,7 +151,43 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
 
 void AutyperMain::on_actionOpen_triggered()
 {
+  QString qPath = QFileDialog::getOpenFileName(this,
+                                               tr("Open text file"),
+                                               Prefs::user_path,
+                                               tr("Audio files (*.txt *.*)"),
+                                               0,
+                                               QFileDialog::DontResolveSymlinks);
 
+  if (qPath.isEmpty())
+  {
+    return;
+  }
+
+  updateUserPath(qPath);
+
+  QFile file(qPath);
+
+  file.open(QFile::ReadOnly | QFile::Text);
+
+  QTextStream ReadFile(&file);
+  QString  content = ReadFile.readAll();
+
+  QPlainTextEdit * e = new QPlainTextEdit(this);
+
+  QFont f1 = e->font();
+  QFontMetrics fm(f1);
+  f1.setPointSize(FONT_SIZE);
+  e->setFont(f1);
+
+  QMdiSubWindow * sub = ui->mdiArea->addSubWindow(e);
+  sub->setWindowIcon(QIcon(":/rec/images/autyper_icon.ico"));
+
+  sub->setWindowTitle(qPath);
+
+  e->setPlainText(content);
+  e->showMaximized();
+  mdiList.append(e);
+  activeText = e;
 }
 
 void AutyperMain::on_actionNew_triggered()
@@ -166,7 +201,6 @@ void AutyperMain::on_actionNew_triggered()
   e->setFont(f1);
 
   QMdiSubWindow * sub = ui->mdiArea->addSubWindow(e);
-  e->setWindowIcon(QIcon("images/autyper_icon.ico"));
   sub->setWindowIcon(QIcon(":/rec/images/autyper_icon.ico"));
   if (name_cnt++ != 0) {
     sub->setWindowTitle(QString::asprintf("%s%d.txt", UNTITLED_NAME, name_cnt++ ));
@@ -178,17 +212,16 @@ void AutyperMain::on_actionNew_triggered()
   mdiList.append(e);
   activeText = e;
 
-  QProcessEnvironment p;
-  QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
   QString file = QFileDialog::getOpenFileName(this,
                                                tr("Open Audio file"),
-                                               fp,
+                                               Prefs::user_audio_path,
                                                tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
 
   if (!file.isEmpty())
   {
+    updateUserAudioPath(file);
     QString d ="Open file: " + file; // QDir::currentPath();
     LOGS(d);
     dlgProgress->update(0);
@@ -223,7 +256,7 @@ void AutyperMain::on_actionSave_triggered()
   QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
   QString qPath = QFileDialog::getSaveFileName(this,
                                                tr("Text file-name to be saved"),
-                                               fp,
+                                               Prefs::user_path,
                                                tr("Audio files (*.txt *.*)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
@@ -232,7 +265,8 @@ void AutyperMain::on_actionSave_triggered()
   {
     return;
   }
-  //const QString qPath("testQTextStreamEncoding.txt");
+
+  updateUserPath(qPath);
 
   QFile qFile(qPath);
   if (qFile.open(QIODevice::WriteOnly)) {
@@ -294,17 +328,16 @@ void AutyperMain::on_actionAppend_Voice_triggered()
   }
   activeText = e;
 
-  QProcessEnvironment p;
-  QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
   QString file = QFileDialog::getOpenFileName(this,
                                                tr("Open Audio file"),
-                                               fp,
+                                               Prefs::user_audio_path,
                                                tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
 
   if (!file.isEmpty())
   {
+    updateUserAudioPath(file);
     QString d ="Open file: " + file; // QDir::currentPath();
     LOGS(d);
     dlgProgress->update(0);

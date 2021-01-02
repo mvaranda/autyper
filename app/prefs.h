@@ -12,7 +12,9 @@ public:
   static QString info_url;
   static QString active_model_file;
   static QString active_scorer_file;
-  static QString user_path;
+  static QString user_path; // for text
+  static QString user_audio_path;
+  static QString user_model_path;
 
 };
 

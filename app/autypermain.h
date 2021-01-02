@@ -64,6 +64,7 @@ private:
   void startVoice2TextThread(QString filename, FeederBase * feeder);
   void enableConvControls(void);
   void disableConvControls(void);
-
+  void updateUserPath(QString path);
+  void updateUserAudioPath(QString path);
 };
 #endif // AUTYPERMAIN_H
