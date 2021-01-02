@@ -19,6 +19,7 @@
 #include "log.h"
 #include <stdio.h>
 #include <QString>
+#include "feederfactory.h"
 
 #ifdef _MACOS
   #include <malloc/malloc.h>
@@ -36,12 +37,11 @@ void Voice2Text::abortRequest(void)
   abort = true;
 }
 
-
 uint32_t Voice2Text::getModelSampleRate (QString filaname)
 {
   uint32_t ret = 0;
   ModelState* ctx = NULL;
-  // sphinx-doc: c_ref_model_start
+
   int status = DS_CreateModel(filaname.toStdString().c_str(), &ctx);
   if (status == 0) {
     ret = DS_GetModelSampleRate(ctx);
@@ -68,16 +68,14 @@ uint32_t Voice2Text::scanForSilence(void) // actually the lower power window.
 
   uint64_t power = 0;
   uint64_t lowest_power = ~0;  // set it to max power value (complement of 0 -> 0xffff...)
-  uint32_t cnt=0, lowest_power_idx = AUDIO_BUFFER_SPLIT_START;
+  uint32_t lowest_power_idx = AUDIO_BUFFER_SPLIT_START;
 
   // first window power:
   //   for best optimazation we will slide the window... so we only add all power once.
   //   then we will later (in the scann loop) remove the first sample and add the last to slide the windows
   for (i = AUDIO_BUFFER_SPLIT_START; i < AUDIO_BUFFER_SPLIT_START + SILENCE_WINDOW_IN_SAMPLES; i++) {
     power += aBuffer[i] * aBuffer[i]; // square the sample to get its power
-    cnt++;
   }
-  LOG("cnt = %d\n", cnt);
 
   // scan
   for (i = AUDIO_BUFFER_SPLIT_START + 1; i < (AUDIO_BUFFER_NUM_SAMPLES - SILENCE_WINDOW_IN_SAMPLES); i++) {
@@ -112,6 +110,8 @@ void Voice2Text::run (void)
       DS_FreeString((char *) error);
       CResult * res = new CResult(ERROR_BAD_MODEL_FILE, QString("Could not create Model"), 0 );
       emit resultReady(res);
+      delete feeder;
+      quit();
       return;
     }
 
@@ -123,10 +123,22 @@ void Voice2Text::run (void)
       LOG_E("Could not enable external scorer.\n");
       CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create Model"), 0 );
       emit resultReady(res);
-
+      delete feeder;
+      quit();
       return;
     }
   }
+
+  FeederBase * feeder = NULL;
+  try {
+    feeder = FeederFactory::create(filename, DS_GetModelSampleRate(model_ctx));
+  } catch (FeederBase::FeederException e) {
+    CResult * res = new CResult(ERROR_BAD_VOICE_FILE, QString("Bad voice file."), 0 );
+    emit resultReady(res);
+    quit();
+    return;
+  }
+
 
   uint32_t fromfeeder, progress, left_over_samples = 0;
 
@@ -149,7 +161,7 @@ void Voice2Text::run (void)
     }
 
     silence_idx = scanForSilence();
-    LOG("Split at: %d\n", silence_idx);
+    // LOG("Split at: %d\n", silence_idx);
 
     txt = DS_SpeechToText(model_ctx, aBuffer, silence_idx);
     CResult * res = new CResult(PARTIAL_TEXT, QString(txt), progress );
@@ -164,17 +176,21 @@ void Voice2Text::run (void)
 
   }
 
+  delete feeder;
   quit();
 }
 
-
-Voice2Text::Voice2Text( QString filename, QString model, QString scorer, FeederBase * _feeder)
+Voice2Text::Voice2Text( QString model, QString scorer)
 {
-  this->filename = filename;
   model_fn = model;
   scorer_fn = scorer;
-  feeder =_feeder;
   model_ctx = NULL;
+}
+
+void Voice2Text::startConvertion(QString filename)
+{
+  this->filename = filename;
+  start();
 }
 
 void cppProtocolInit(void)

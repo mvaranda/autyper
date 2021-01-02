@@ -46,8 +46,7 @@ private slots:
 
 private:
   Ui::AutyperMain * ui;
-  Voice2Text *      workerThread;
-  uint32_t          modelSampleRate;
+  Voice2Text *      voice2Text;
   int               name_cnt;
   QList<QPlainTextEdit *> mdiList;
   QPlainTextEdit *  activeText;

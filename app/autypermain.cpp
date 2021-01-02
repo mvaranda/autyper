@@ -43,13 +43,14 @@ AutyperMain::AutyperMain(QWidget *parent)
   , ui(new Ui::AutyperMain)
 {
   name_cnt=0;
-  workerThread = NULL;
+  voice2Text = new Voice2Text( QString(MODEL), QString(SCORER) );
   ui->setupUi(this);
   setWindowTitle("AuTyper - Version " AuTyperVersion);
-  modelSampleRate = Voice2Text::getModelSampleRate (QString (MODEL));
-  LOG("Model samplerate = %d\n", modelSampleRate);
   dlgProgress = new DlgProgress(this);
+
   connect(dlgProgress, &DlgProgress::canceReqToMain, this, &AutyperMain::handleAbortRequest);
+  connect(voice2Text, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
+
 
   // Debug only: go straight to convert a file
 #ifdef OPEN_FILE_AT_STARTUP
@@ -64,71 +65,24 @@ AutyperMain::~AutyperMain()
 
 void AutyperMain::handleAbortRequest(void)
 {
-  if(workerThread) {
-    workerThread->abortRequest();
+  if(voice2Text) {
+    voice2Text->abortRequest();
   }
-}
-
-void AutyperMain::startVoice2TextThread(QString filename, FeederBase * feeder)
-{
-    workerThread = new Voice2Text(filename, QString(MODEL), QString(SCORER), feeder);
-    connect(workerThread, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
-    //connect(workerThread, &Voice2Text::finished, workerThread, &QObject::deleteLater);
-    workerThread->start();
 }
 
 void AutyperMain::on_actionOpen_triggered()
 {
-#ifdef OPEN_FILE_AT_STARTUP
-  QString file("..\\..\\autyper\\voices\\invisibleman_Stereo_44100_32_256kbs.mp3");
-  //QString file("..\\..\\autyper\\voices\\123.mp3");
-#else
-  QProcessEnvironment p;
-  QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
-  QString file = QFileDialog::getOpenFileName(this,
-                                               tr("Open Audio file"),
-                                               fp,
-                                               tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
-                                               0,
-                                               QFileDialog::DontResolveSymlinks);
-#endif
-  if (!file.isEmpty())
-  {
-    QString d ="Open file: " + file; // QDir::currentPath();
-    LOG(d.toStdString().c_str());
-    FeederBase * f = NULL;
-    try {
-      f = FeederFactory::create(file, modelSampleRate);
-    } catch (FeederBase::FeederException e) {
-      QMessageBox msgBox(QMessageBox::Warning, "Voice Input fail", e.msg);
-      msgBox.exec();
-      delete f;
-      f = NULL;
-    }
-
-    if (f == NULL) {
-      LOG("Could not create a feeded");
-      return;
-    }
-
-    startVoice2TextThread(file, f);
-  }
-  else {
-    LOG("Open audio file cancelled.");
-  }
 
 }
 
 void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
 {
+#if 0 // log res
   QString t("Text result: ");
   t = t + res->text + QString("\n");
   LOG(t.toStdString().c_str());
   LOG("progress = %d\n", res->progress);
-
-  if (res->result_code == Voice2Text::ABORT_TEXT) {
-    dlgProgress->hide();
-  }
+#endif
 
   if ( (res->result_code == Voice2Text::PARTIAL_TEXT) ||
        (res->result_code == Voice2Text::FINAL_TEXT) ) {
@@ -139,13 +93,14 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
       activeText->moveCursor (QTextCursor::End);
     }
     else {
-      LOG("no active text... dropping\n");
+      LOG_E("no active text... dropping\n");
     }
     if (res->result_code == Voice2Text::FINAL_TEXT) {
       dlgProgress->hide();
     }
   }
   else {
+    dlgProgress->hide();
     QMessageBox msgBox(QMessageBox::Warning, "Voice Input fail", res->text);
     msgBox.exec();
   }
@@ -164,8 +119,7 @@ void AutyperMain::on_actionNew_triggered()
   QFont f1 = e->font();
   QFontMetrics fm(f1);
   f1.setPointSize(FONT_SIZE);
-  e->setFont(f1);  //<<<<<<<< Add this
-  //e->setFontPointSize()
+  e->setFont(f1);
 
   QMdiSubWindow * sub = ui->mdiArea->addSubWindow(e);
   e->setWindowIcon(QIcon("images/autyper_icon.ico"));
@@ -198,23 +152,9 @@ void AutyperMain::on_actionNew_triggered()
   {
     QString d ="Open file: " + file; // QDir::currentPath();
     LOG(d.toStdString().c_str());
-    FeederBase * f = NULL;
-    try {
-      f = FeederFactory::create(file, modelSampleRate);
-    } catch (FeederBase::FeederException e) {
-      QMessageBox msgBox(QMessageBox::Warning, "Voice Input fail", e.msg);
-      msgBox.exec();
-      delete f;
-      f = NULL;
-    }
-
-    if (f == NULL) {
-      LOG("Could not create a feeded");
-      return;
-    }
     dlgProgress->update(0);
     dlgProgress->show();
-    startVoice2TextThread(file, f);
+    voice2Text->startConvertion(file);
   }
   else {
     LOG("Open audio file cancelled.");
