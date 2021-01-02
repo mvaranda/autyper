@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<info>
+  <model>
+    <name>English-Default</name>
+    <version>0.9.3</version>
+    <model_url>https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.pbmm</model_url>
+    <model_md5>8b15ccb86d0214657e48371287b7a49a</model_md5>
+    <scorer_url>https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.scorer</scorer_url>
+    <scorer_md5>08a02b383a9bc93c8a8ad188dbf79bc9</scorer_md5>
+  </model>
+</info>
