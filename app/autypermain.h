@@ -37,6 +37,8 @@ public:
   AutyperMain(QWidget *parent = nullptr);
   ~AutyperMain();
 
+  QString appDataPath;
+
 private slots:
   void on_actionOpen_triggered();
   void handle_voice2text(Voice2Text::CResult * res);

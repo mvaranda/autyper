@@ -22,10 +22,17 @@
 #include <stdio.h>
 #include <QDebug>
 
+// for printf like (char *)
 #define LOG         qDebug
 #define LOG_E       qCritical
 #define LOG_I       qInfo
 #define LOG_W       qWarning
+
+// for QString content
+#define LOGS(s)     qDebug(s.toStdString().c_str())
+#define LOGS_E(s)   qCritical(s.toStdString().c_str())
+#define LOGS_I(s)   qInfo(s.toStdString().c_str())
+#define LOGS_W(s)   qWarning(s.toStdString().c_str())
 
 #ifdef __cplusplus
   extern "C" {

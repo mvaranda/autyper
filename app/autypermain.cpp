@@ -17,15 +17,17 @@
  */
 
 #include <QDir>
-#include "autypermain.h"
-#include "ui_autypermain.h"
-#include "log.h"
 #include <QProcessEnvironment>
 #include <QFileDialog>
-#include "feederfactory.h"
 #include <QMessageBox>
 #include <QWindow>
 #include <QMdiSubWindow>
+#include <QStandardPaths>
+
+#include "feederfactory.h"
+#include "autypermain.h"
+#include "ui_autypermain.h"
+#include "log.h"
 #include "version.h"
 
 // Debug only: go straight to convert a file
@@ -51,6 +53,8 @@ AutyperMain::AutyperMain(QWidget *parent)
   connect(dlgProgress, &DlgProgress::canceReqToMain, this, &AutyperMain::handleAbortRequest);
   connect(voice2Text, &Voice2Text::resultReady, this, &AutyperMain::handle_voice2text);
 
+  appDataPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QString("/");
+  LOGS(appDataPath);
 
   // Debug only: go straight to convert a file
 #ifdef OPEN_FILE_AT_STARTUP
@@ -80,7 +84,7 @@ void AutyperMain::handle_voice2text(Voice2Text::CResult * res)
 #if 0 // log res
   QString t("Text result: ");
   t = t + res->text + QString("\n");
-  LOG(t.toStdString().c_str());
+  LOGS(t);
   LOG("progress = %d\n", res->progress);
 #endif
 
@@ -151,7 +155,7 @@ void AutyperMain::on_actionNew_triggered()
   if (!file.isEmpty())
   {
     QString d ="Open file: " + file; // QDir::currentPath();
-    LOG(d.toStdString().c_str());
+    LOGS(d);
     dlgProgress->update(0);
     dlgProgress->show();
     voice2Text->startConvertion(file);
