@@ -15,10 +15,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QFileInfo>
+
 #include "feederfactory.h"
 #include "feeder_mp3.h"
 #include "log.h"
-#include <QFileInfo>
 
 //FeederFactory::FeederFactory()
 //{

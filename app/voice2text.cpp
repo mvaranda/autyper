@@ -15,10 +15,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "voice2text.h"
-#include "log.h"
 #include <stdio.h>
 #include <QString>
+
+#include "voice2text.h"
+#include "log.h"
 #include "feederfactory.h"
 
 #ifdef _MACOS
@@ -63,7 +64,8 @@ uint32_t Voice2Text::scanForSilence(void) // actually the lower power window.
 {
   int i,p;
 
-  // TODO: consider if we need to apply a hamming window to avoid missleadings due high power at the window edges.
+  // TODO 1: need more testing
+  // TODO 2: consider if we need to apply a hamming window to avoid missleadings due high power at the window edges.
   // however, if that is the case, the computation will be very "expensive" for detecting low power splitting points.
 
   uint64_t power = 0;

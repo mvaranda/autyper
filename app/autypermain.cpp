@@ -23,6 +23,7 @@
 #include <QWindow>
 #include <QMdiSubWindow>
 #include <QStandardPaths>
+#include <QFileInfo>
 
 #include "feederfactory.h"
 #include "autypermain.h"
@@ -163,4 +164,54 @@ void AutyperMain::on_actionNew_triggered()
   else {
     LOG("Open audio file cancelled.");
   }
+}
+
+void AutyperMain::on_actionSave_triggered()
+{
+  QMdiSubWindow * sub = nullptr;
+  if ((sub = ui->mdiArea->activeSubWindow()) == nullptr) {
+    QMessageBox msgBox(QMessageBox::Warning, "Warning", "No Text Window selected");
+    msgBox.exec();
+    return;
+  }
+
+  QPlainTextEdit * e = sub->findChild<QPlainTextEdit *>();
+  if (e == nullptr) {
+    QMessageBox msgBox(QMessageBox::Warning, "Warning", "unexpected empty window");
+    msgBox.exec();
+    return;
+  }
+
+  LOGS(e->toPlainText());
+
+  QProcessEnvironment p;
+  QString fp = p.systemEnvironment().value(QString("USERPROFILE"));
+  QString qPath = QFileDialog::getSaveFileName(this,
+                                               tr("Text file-name to be saved"),
+                                               fp,
+                                               tr("Audio files (*.txt *.*)"),
+                                               0,
+                                               QFileDialog::DontResolveSymlinks);
+
+  if (qPath.isEmpty())
+  {
+    return;
+  }
+  //const QString qPath("testQTextStreamEncoding.txt");
+
+  QFile qFile(qPath);
+  if (qFile.open(QIODevice::WriteOnly)) {
+    QTextStream out(&qFile); out << e->toPlainText();
+    qFile.close();
+  }
+  else {
+    QMessageBox msgBox(QMessageBox::Warning, "Warning", "fail to open file to write");
+    msgBox.exec();
+  }
+
+  //path.mid(path.lastIndexOf("/"));
+
+  sub->setWindowTitle(qPath);
+  //sub->setWindowTitle( QFileInfo::fileName(qPath));
+
 }

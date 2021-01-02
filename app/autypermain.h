@@ -46,6 +46,8 @@ private slots:
 
   void on_actionNew_triggered();
 
+  void on_actionSave_triggered();
+
 private:
   Ui::AutyperMain * ui;
   Voice2Text *      voice2Text;
