@@ -22,6 +22,8 @@
 #include <QAudioDecoder>
 #include <stdint.h>
 #include "feederbase.h"
+#include "deepspeech.h"
+
 
 #define   AUDIO_BUFFER_NUM_SAMPLES  (6 * 16 * 1024) // about 6 second (buffer is short... therefore size in bytes is double (32K)
 
@@ -52,7 +54,6 @@ public:
   static uint32_t getModelSampleRate (QString filanema);
 
   Voice2Text();
-  Voice2Text( QString filename, void * handler_func, void * handler_ctx);
   Voice2Text( QString filename, QString model, QString scorer, FeederBase * _feeder);
   void abortRequest(void);
 
@@ -60,7 +61,8 @@ public:
 private:
 
   // private variables
-  QAudioDecoder   * decoder;
+  ModelState      * model_ctx;
+//  QAudioDecoder   * decoder;
   QString           filename;
   QString           model_fn;
   QString           scorer_fn;

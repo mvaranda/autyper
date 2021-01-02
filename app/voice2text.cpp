@@ -20,15 +20,13 @@
 #include <stdio.h>
 #include <QString>
 
-#include "deepspeech.h"
-
 #ifdef _MACOS
   #include <malloc/malloc.h>
 #else
   #include <malloc.h>
 #endif
 
-Voice2Text::Voice2Text(): decoder(NULL)
+Voice2Text::Voice2Text()
 {
 
 }
@@ -104,42 +102,33 @@ void Voice2Text::run (void)
 {
   const char * txt;
   uint32_t i, silence_idx = 0;
+  int status;
 
-  /* ... here is the expensive or blocking operation ... */
-  ModelState* ctx;
-  // sphinx-doc: c_ref_model_start
-  int status = DS_CreateModel(model_fn.toStdString().c_str(), &ctx);
-  if (status != 0) {
-    char* error = DS_ErrorCodeToErrorMessage(status);
-    LOG_E("Could not create model: %s\n", error);
-    DS_FreeString((char *) error);
-    CResult * res = new CResult(ERROR_BAD_MODEL_FILE, QString("Could not create Model"), 0 );
-    emit resultReady(res);
-    return;
+  if (model_ctx == NULL) {
+    status = DS_CreateModel(model_fn.toStdString().c_str(), &model_ctx);
+    if (status != 0) {
+      char* error = DS_ErrorCodeToErrorMessage(status);
+      LOG_E("Could not create model: %s\n", error);
+      DS_FreeString((char *) error);
+      CResult * res = new CResult(ERROR_BAD_MODEL_FILE, QString("Could not create Model"), 0 );
+      emit resultReady(res);
+      return;
+    }
+
+    status = DS_EnableExternalScorer(model_ctx, scorer_fn.toStdString().c_str());
+    if (status != 0) {
+      char* error = DS_ErrorCodeToErrorMessage(status);
+      LOG_E("Could not create scorer: %s\n", error);
+      DS_FreeString((char *) error);
+      LOG_E("Could not enable external scorer.\n");
+      CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create Model"), 0 );
+      emit resultReady(res);
+
+      return;
+    }
   }
 
-  status = DS_EnableExternalScorer(ctx, scorer_fn.toStdString().c_str());
-  if (status != 0) {
-    char* error = DS_ErrorCodeToErrorMessage(status);
-    LOG_E("Could not create scorer: %s\n", error);
-    DS_FreeString((char *) error);
-    LOG_E("Could not enable external scorer.\n");
-    CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create Model"), 0 );
-    emit resultReady(res);
-
-    return;
-  }
-
-  StreamingState* stream_st_ctx;
-  status = DS_CreateStream(ctx, &stream_st_ctx);
-  if (status != DS_ERR_OK) {
-    LOG_E("DS_CreateStream: error = %d", status);
-    CResult * res = new CResult(ERROR_BAD_SCORER_FILE, QString("Could not create DS stream"), 0 );
-    emit resultReady(res);
-    return;
-  }
-
-  uint32_t nsamples, fromfeeder, progress, left_over_samples = 0;
+  uint32_t fromfeeder, progress, left_over_samples = 0;
 
 
   while (1) {
@@ -152,7 +141,7 @@ void Voice2Text::run (void)
 
     feeder->getSamples(&aBuffer[left_over_samples], AUDIO_BUFFER_NUM_SAMPLES - left_over_samples, &fromfeeder, &progress);
     if ((fromfeeder +  left_over_samples) < AUDIO_BUFFER_NUM_SAMPLES) { // last block
-      txt = DS_SpeechToText(ctx, aBuffer, fromfeeder +  left_over_samples);
+      txt = DS_SpeechToText(model_ctx, aBuffer, fromfeeder +  left_over_samples);
       CResult * res = new CResult(FINAL_TEXT, QString(txt), progress );
       DS_FreeString((char *) txt);
       emit resultReady(res);
@@ -162,7 +151,7 @@ void Voice2Text::run (void)
     silence_idx = scanForSilence();
     LOG("Split at: %d\n", silence_idx);
 
-    txt = DS_SpeechToText(ctx, aBuffer, silence_idx);
+    txt = DS_SpeechToText(model_ctx, aBuffer, silence_idx);
     CResult * res = new CResult(PARTIAL_TEXT, QString(txt), progress );
     DS_FreeString((char *) txt);
     emit resultReady(res);
@@ -173,20 +162,11 @@ void Voice2Text::run (void)
     }
     left_over_samples = AUDIO_BUFFER_NUM_SAMPLES -  silence_idx;
 
-//    DS_FeedAudioContent(stream_st_ctx, aBuffer, nsamples);
-//    const char* partial = DS_IntermediateDecode(stream_st_ctx);
-//    CResult * res = new CResult(PARTIAL_TEXT, QString(partial), progress );
-//    DS_FreeString((char *) partial);
-//    emit resultReady(res);
   }
 
   quit();
 }
 
-Voice2Text::Voice2Text( QString filename, void * handler_func, void * handler_ctx)
-{
-
-}
 
 Voice2Text::Voice2Text( QString filename, QString model, QString scorer, FeederBase * _feeder)
 {
@@ -194,6 +174,7 @@ Voice2Text::Voice2Text( QString filename, QString model, QString scorer, FeederB
   model_fn = model;
   scorer_fn = scorer;
   feeder =_feeder;
+  model_ctx = NULL;
 }
 
 void cppProtocolInit(void)
