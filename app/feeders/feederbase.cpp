@@ -1,6 +1,6 @@
 /*
  * This file is part of the AuTyper distribution (https://github.com/mvaranda/autyper).
- * Copyright (c) 2020 Marcelo Varanda.
+ * Copyright (c) 2020 Varanda Labs Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,10 +45,11 @@ QString FeederBase::getInputName(void)
 feeder_res_t FeederBase::getSamples(sample_t * samples, uint32_t num_req_samples, uint32_t * num_deliver_samples, uint32_t * progress)
 {
   int nread = fread(samples, 1, num_req_samples * 2, samples_fh);
+  // TODO: check nread
   total_read += nread;
   *num_deliver_samples = nread / 2;
   *progress = (total_read * 100) / samples_file_size;
-
+  return FEEDER_RES__OK;
 }
 
 

@@ -3,7 +3,7 @@
 
 /*
  * This file is part of the AuTyper distribution (https://github.com/mvaranda/autyper).
- * Copyright (c) 2020 Marcelo Varanda.
+ * Copyright (c) 2020 Varanda Labs Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,9 +18,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <QMainWindow>
-#include <QList>
 #include <QPlainTextEdit>
 #include "voice2text.h"
 #include "dlgprogress.h"
@@ -68,7 +66,6 @@ private:
   Ui::AutyperMain * ui;
   Voice2Text *      voice2Text;
   int               name_cnt;
-  QList<QPlainTextEdit *> mdiList;
   QPlainTextEdit *  activeText;
   DlgProgress *     dlgProgress;
   void startVoice2TextThread(QString filename, FeederBase * feeder);

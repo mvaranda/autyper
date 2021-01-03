@@ -2,7 +2,7 @@
 #define FEEDERFACTORY_H
 /*
  * This file is part of the AuTyper distribution (https://github.com/mvaranda/autyper).
- * Copyright (c) 2020 Marcelo Varanda.
+ * Copyright (c) 2020 Varanda Labs Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

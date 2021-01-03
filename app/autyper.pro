@@ -1,8 +1,10 @@
-QT       += core gui multimedia
+QT       += core gui network
+#QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
+CONFIG += debug
 
 win32:RC_ICONS += images/autyper_icon.ico
 

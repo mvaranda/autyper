@@ -1,7 +1,7 @@
 
 /*
  * This file is part of the AuTyper distribution (https://github.com/mvaranda/autyper).
- * Copyright (c) 2020 Marcelo Varanda.
+ * Copyright (c) 2020 Varanda Labs Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 #include "dlgupdate.h"
 
 
-#define HELP_URL      "https://github.com/mvaranda/autyper/tree/master/help"
+#define HELP_URL      "https://github.com/mvaranda/autyper/wiki"
 #define UNTITLED_NAME "Untitled"
 #define FONT_SIZE     14
 
@@ -189,7 +189,6 @@ void AutyperMain::on_actionOpen_triggered()
 
   e->setPlainText(content);
   e->showMaximized();
-  mdiList.append(e);
   activeText = e;
 }
 
@@ -212,7 +211,6 @@ void AutyperMain::on_actionNew_triggered()
     sub->setWindowTitle(QString::asprintf("%s.txt", UNTITLED_NAME ));
   }
   e->showMaximized();
-  mdiList.append(e);
   activeText = e;
 
   QString file = QFileDialog::getOpenFileName(this,
