@@ -1,8 +1,7 @@
 
 Current
 TODO:
-  - Open Text file from disk
-  - About Dialog
+
   - Installer
 
 Road map:

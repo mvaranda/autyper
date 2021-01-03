@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1042</width>
-    <height>794</height>
+    <height>632</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -81,6 +81,8 @@
     <addaction name="separator"/>
     <addaction name="actionHelp"/>
     <addaction name="actionInfo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCheck_for_Upgrade"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -199,7 +201,12 @@
     <string>Append Voice to existing text</string>
    </property>
    <property name="shortcut">
-    <string></string>
+    <string/>
+   </property>
+  </action>
+  <action name="actionCheck_for_Upgrade">
+   <property name="text">
+    <string>Check for Upgrade</string>
    </property>
   </action>
  </widget>

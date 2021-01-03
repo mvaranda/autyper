@@ -19,6 +19,7 @@ SOURCES += \
     dlgabout.cpp \
     dlgmodelref.cpp \
     dlgprogress.cpp \
+    dlgupdate.cpp \
     feeders/feeder_mp3.cpp \
     feeders/feederbase.cpp \
     feeders/feederfactory.cpp \
@@ -35,6 +36,7 @@ HEADERS += \
     dlgabout.h \
     dlgmodelref.h \
     dlgprogress.h \
+    dlgupdate.h \
     feeders/feeder_mp3.h \
     feeders/feederbase.h \
     feeders/feederfactory.h \
@@ -47,7 +49,8 @@ FORMS += \
     autypermain.ui \
     dlgabout.ui \
     dlgmodelref.ui \
-    dlgprogress.ui
+    dlgprogress.ui \
+    dlgupdate.ui
 
 TRANSLATIONS += \
     autyper_en_US.ts

@@ -34,6 +34,7 @@
 #include "prefs.h"
 #include "dlgmodelref.h"
 #include "dlgabout.h"
+#include "dlgupdate.h"
 
 
 #define HELP_URL      "https://github.com/mvaranda/autyper/tree/master/help"
@@ -361,6 +362,13 @@ void AutyperMain::on_actionHelp_triggered()
 void AutyperMain::on_actionInfo_triggered()
 {
   dlgabout d(this);
+  d.setModal(true);
+  d.exec();
+}
+
+void AutyperMain::on_actionCheck_for_Upgrade_triggered()
+{
+  DlgUpdate d(this);
   d.setModal(true);
   d.exec();
 }

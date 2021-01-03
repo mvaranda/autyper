@@ -56,6 +56,8 @@ private slots:
 
   void on_actionInfo_triggered();
 
+  void on_actionCheck_for_Upgrade_triggered();
+
 private:
   Ui::AutyperMain * ui;
   Voice2Text *      voice2Text;

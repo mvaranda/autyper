@@ -1,1 +1,1 @@
-#define AuTyperVersion "0.0.0"
+#define AuTyperVersion "0.0.1"
