@@ -24,6 +24,7 @@
 #include <QMdiSubWindow>
 #include <QStandardPaths>
 #include <QFileInfo>
+#include <QDesktopServices>
 
 #include "feederfactory.h"
 #include "autypermain.h"
@@ -32,7 +33,8 @@
 #include "version.h"
 #include "prefs.h"
 #include "dlgmodelref.h"
-#include <QDesktopServices>
+#include "dlgabout.h"
+
 
 #define HELP_URL      "https://github.com/mvaranda/autyper/tree/master/help"
 #define UNTITLED_NAME "Untitled"
@@ -354,4 +356,11 @@ void AutyperMain::on_actionAppend_Voice_triggered()
 void AutyperMain::on_actionHelp_triggered()
 {
   QDesktopServices::openUrl ( QUrl(HELP_URL) );
+}
+
+void AutyperMain::on_actionInfo_triggered()
+{
+  dlgabout d(this);
+  d.setModal(true);
+  d.exec();
 }

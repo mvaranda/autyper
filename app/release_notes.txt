@@ -3,7 +3,6 @@ Current
 TODO:
   - Open Text file from disk
   - About Dialog
-  - Show progress for feeder construction
   - Installer
 
 Road map:

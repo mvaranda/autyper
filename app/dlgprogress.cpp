@@ -6,6 +6,9 @@ DlgProgress::DlgProgress(QWidget *parent) :
   ui(new Ui::DlgProgress)
 {
   ui->setupUi(this);
+  Qt::WindowFlags flags = windowFlags();
+  flags &= ~Qt::WindowContextHelpButtonHint;
+  setWindowFlags(flags);
 }
 
 DlgProgress::~DlgProgress()

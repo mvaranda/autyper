@@ -54,6 +54,8 @@ private slots:
 
   void on_actionHelp_triggered();
 
+  void on_actionInfo_triggered();
+
 private:
   Ui::AutyperMain * ui;
   Voice2Text *      voice2Text;

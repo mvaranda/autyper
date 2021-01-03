@@ -8,6 +8,11 @@ DlgModelRef::DlgModelRef(QWidget *parent) :
   ui(new Ui::DlgModelRef)
 {
   ui->setupUi(this);
+
+  Qt::WindowFlags flags = windowFlags();
+  flags &= ~Qt::WindowContextHelpButtonHint;
+  setWindowFlags(flags);
+
   ui->t_model->setPlainText(Prefs::active_model_file);
   ui->t_scorer->setPlainText(Prefs::active_scorer_file);
 }
