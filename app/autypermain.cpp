@@ -372,3 +372,34 @@ void AutyperMain::on_actionCheck_for_Upgrade_triggered()
   d.setModal(true);
   d.exec();
 }
+
+void AutyperMain::emulKeyPress(uint32_t key, uint32_t modifier)
+{
+  QWidget* focused = QApplication::focusWidget();
+  if( focused != 0 )
+  {
+      QApplication::postEvent( focused,
+                               new QKeyEvent( QEvent::KeyPress,
+                                              key,
+                                              Qt::ControlModifier ));
+      QApplication::postEvent( focused,
+                               new QKeyEvent( QEvent::KeyRelease,
+                                              key,
+                                              Qt::ControlModifier ));
+  }
+}
+
+void AutyperMain::on_actionCopy_triggered()
+{
+  emulKeyPress(Qt::Key_C, Qt::ControlModifier);
+}
+
+void AutyperMain::on_actionPaste_triggered()
+{
+  emulKeyPress(Qt::Key_V, Qt::ControlModifier);
+}
+
+void AutyperMain::on_actionCut_triggered()
+{
+    emulKeyPress(Qt::Key_X, Qt::ControlModifier);
+}

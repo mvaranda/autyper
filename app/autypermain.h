@@ -58,6 +58,12 @@ private slots:
 
   void on_actionCheck_for_Upgrade_triggered();
 
+  void on_actionCopy_triggered();
+
+  void on_actionPaste_triggered();
+
+  void on_actionCut_triggered();
+
 private:
   Ui::AutyperMain * ui;
   Voice2Text *      voice2Text;
@@ -70,5 +76,6 @@ private:
   void disableConvControls(void);
   void updateUserPath(QString path);
   void updateUserAudioPath(QString path);
+  void emulKeyPress(uint32_t key, uint32_t modifier);
 };
 #endif // AUTYPERMAIN_H

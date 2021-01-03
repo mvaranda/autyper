@@ -69,6 +69,7 @@
     </property>
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
+    <addaction name="actionCut"/>
     <addaction name="separator"/>
     <addaction name="actionAppend_Voice"/>
     <addaction name="separator"/>
@@ -207,6 +208,14 @@
   <action name="actionCheck_for_Upgrade">
    <property name="text">
     <string>Check for Upgrade</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
  </widget>

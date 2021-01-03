@@ -84,8 +84,8 @@ void DlgUpdate::httpFinished(void)
   LOGS(note);
 #endif
 
-  uint32_t ver_installed = verToNum( QString(AuTyperVersion) );
-  uint32_t ver_latest = verToNum( latest_version );
+  int32_t ver_installed = verToNum( QString(AuTyperVersion) );
+  int32_t ver_latest = verToNum( latest_version );
 
   ui->t_latest_ver->setText(QString("Latest Version: " + latest_version));
 
@@ -120,6 +120,7 @@ int32_t DlgUpdate::verToNum( QString v )
   ret |= (s.at(1).toInt() & 0x000000ff) << 8;
   ret |= s.at(2).toInt() & 0x000000ff;
   LOG("verToNum: 0x%x", ret);
+  return ret;
 }
 
 void DlgUpdate::httpReadyRead(void)
