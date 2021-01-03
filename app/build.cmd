@@ -65,3 +65,17 @@ cd %APP_DST%
 
 cd %ROOTDIR_3%
 copy ..\deepspeech\lib\libdeepspeech.so ..\release\
+
+echo ****************************************
+echo *        Run Inno Installer Maker
+echo ****************************************
+
+IF EXIST "Output" rmdir /S /Q "Output"
+%INNO_DIR%\ISCC.exe AuTyperInstallScript.iss
+
+copy Output\* installers\
+python renameInstaller.py
+
+cd %ROOTDIR_3%
+
+EXIT /B %ERRORLEVEL%

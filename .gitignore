@@ -6,4 +6,6 @@ build-autyper-Desktop_Qt_5_15_2_MinGW_64_bit-Debug/debug/autyper.exe
 deepspeech/models/deepspeech-0.9.3-models.pbmm
 deepspeech/models/deepspeech-0.9.3-models.scorer
 release
+app/Output
+app/qtbuild
 

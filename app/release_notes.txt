@@ -1,8 +1,12 @@
 
-Current
-TODO:
 
-  - Installer
+Release Version 0.0.1 (Alpha)
+=============================
+Date: Jan 03, 2021
+By: Marcelo Varanda
+Hash: 
+
+
 
 Road map:
 ========
