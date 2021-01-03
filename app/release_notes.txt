@@ -2,9 +2,23 @@
 
 Release Version 0.0.1 (Alpha)
 =============================
-Date: Jan 03, 2021
-By: Marcelo Varanda
-Hash: 
+  Date: Jan 03, 2021
+  By: Marcelo Varanda
+  Commit: Master a70413a1ba84f669206863e28793bb63000fc882
+
+  - What is new:
+    - Nothing... this is the first Alpha release.
+
+  - Bug Fixes:
+    - N.A.
+
+  - Known Issues:
+    - Missing cosmetics:
+      - Filenames in window title have no mark showing changes (pending save).
+      - Files named by user could be prompt to save with the same name.
+      - much more to be discovered...
+
+Have Fun !!!
 
 
 
