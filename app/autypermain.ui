@@ -190,7 +190,7 @@
   <action name="actionAppend_Voice">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/rec/images/audio-x-speex+ogg.png</normaloff>:/rec/images/audio-x-speex+ogg.png</iconset>
+     <normaloff>:/rec/images/autyper_icon_128.png</normaloff>:/rec/images/autyper_icon_128.png</iconset>
    </property>
    <property name="text">
     <string>Append Voice</string>

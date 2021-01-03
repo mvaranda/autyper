@@ -154,7 +154,7 @@ void AutyperMain::on_actionOpen_triggered()
   QString qPath = QFileDialog::getOpenFileName(this,
                                                tr("Open text file"),
                                                Prefs::user_path,
-                                               tr("Audio files (*.txt *.*)"),
+                                               tr("Text files (*.txt *.*)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
 
@@ -215,7 +215,7 @@ void AutyperMain::on_actionNew_triggered()
   QString file = QFileDialog::getOpenFileName(this,
                                                tr("Open Audio file"),
                                                Prefs::user_audio_path,
-                                               tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
+                                               tr("Audio files (*.mp3), // to be added later:  *.wav *.ogg *.flac *.aac)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
 
@@ -257,7 +257,7 @@ void AutyperMain::on_actionSave_triggered()
   QString qPath = QFileDialog::getSaveFileName(this,
                                                tr("Text file-name to be saved"),
                                                Prefs::user_path,
-                                               tr("Audio files (*.txt *.*)"),
+                                               tr("Text files (*.txt *.*)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
 
@@ -331,7 +331,7 @@ void AutyperMain::on_actionAppend_Voice_triggered()
   QString file = QFileDialog::getOpenFileName(this,
                                                tr("Open Audio file"),
                                                Prefs::user_audio_path,
-                                               tr("Audio files (*.mp3 *.wav *.ogg *.flac *.aac)"),
+                                               tr("Audio files (*.mp3), // to be added later:  *.wav *.ogg *.flac *.aac)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
 

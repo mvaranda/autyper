@@ -147,7 +147,6 @@ void Voice2Text::run (void)
 
   while (1) {
     if (abort) {
-      delete feeder;
       CResult * res = new CResult(ABORT_TEXT, QString("conversion Aborted"), 0 );
       emit resultReady(res);
       break;
