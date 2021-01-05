@@ -1,9 +1,10 @@
 # autyper
 
-This is a Native front-end for Mozilla's DeepSpeech project. Autyper will convert audio files (MP3, Wav, Ogg, Flac... etc) as well as input audio sources (microphone) to text documents. A simple installer will be provided for Windows/Mac/Linux; models can be friendly downloaded/managed using the UI dialogs.
+This is a Native front-end for Mozilla's DeepSpeech project. Autyper converts MP3 audio files to text; later will also support Wav, Ogg, Flac... etc as well as input audio sources (microphone). A simple installer is provided for Windows (later Mac/Linux); models can be friendly managed using the UI dialogs.
 
-### Note: This project is in its very earlier stages of development; it is not usable yet as the focus is to prototype the core functionality.
-I will update this README as soon as I have something usable.
+### Installer
+
+See https://github.com/mvaranda/autyper/wiki
 
 ### License: 
   GPL-3
