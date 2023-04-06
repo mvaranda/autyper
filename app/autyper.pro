@@ -62,12 +62,15 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../deepspeech/lib/ -l:libdeepspeech.so
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../deepspeech/lib/ -l:libdeepspeech.so
-else:unix: LIBS += -L$$PWD/../deepspeech/lib/ -ldeepspeech
-else:macx: LIBS += -L$$PWD/../deepspeech/lib/ -ldeepspeech_mac
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../deepspeech/lib/ -l:libdeepspeech.so
+#else:unix: LIBS += -L$$PWD/../deepspeech/lib/ -ldeepspeech-linux
+#unix: LIBS += -L$$PWD/../deepspeech/lib/ -l:libdeepspeech.so
+macx: LIBS += -L$$PWD/../deepspeech/lib/ -ldeepspeech-mac
+else: LIBS += -L$$PWD/../deepspeech/lib/ -l:libdeepspeech.so
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../deepspeech/lib/ -l:libdeepspeech.so
 
-LIBS += -L$$PWD/../libmad -l:libmad.a
+win32: LIBS += -L$$PWD/../libmad -l:libmad.a
+else:unix: LIBS +=  -L$$PWD/../libmad -l:libmad-linux.a
 
 INCLUDEPATH += $$PWD/../deepspeech/include
 INCLUDEPATH += $$PWD/../app/feeders

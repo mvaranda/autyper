@@ -15,8 +15,8 @@ gcc $CFLAGS $DEFS synth.c -o synth.o
 gcc $CFLAGS $DEFS timer.c -o timer.o
 gcc $CFLAGS $DEFS version.c -o version.o
 
-ar ruv libmad.a bit.o decoder.o fixed.o frame.o huffman.o layer12.o layer3.o stream.o synth.o timer.o version.o
+ar ruv libmad-linux.a bit.o decoder.o fixed.o frame.o huffman.o layer12.o layer3.o stream.o synth.o timer.o version.o
 
-ranlib libmad.a
+ranlib libmad-linux.a
 
-cp libmad.a ../
+cp libmad-linux.a ../

@@ -2346,8 +2346,19 @@ void III_freqinver(mad_fixed_t sample[18][32], unsigned int sb)
  * NAME:	III_decode()
  * DESCRIPTION:	decode frame main_data
  */
-static
-enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
+//static
+//enum mad_error III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
+//			  struct sideinfo *si, unsigned int nch)
+
+
+
+
+
+
+
+
+
+static int III_decode(struct mad_bitptr *ptr, struct mad_frame *frame,
 			  struct sideinfo *si, unsigned int nch)
 {
   struct mad_header *header = &frame->header;
