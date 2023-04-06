@@ -4,7 +4,7 @@ QT       += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
-CONFIG += debug
+CONFIG += release
 
 win32:RC_ICONS += images/autyper_icon.ico
 
