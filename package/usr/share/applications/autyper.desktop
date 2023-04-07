@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=0.1
+Name=Autyper
+Comment=Voice to Text Converter
+Exec=/usr/bin/bash -c "export LD_LIBRARY_PATH=/opt/autyper && /opt/autyper/autyper"
+Terminal=false
+Icon=/opt/autyper/autyper_icon_128.png
+Type=Application
+Categories=AudioVideo;
+Keywords=Audio;
+Name[en_US]=Autyper

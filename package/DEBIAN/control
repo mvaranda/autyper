@@ -1,0 +1,12 @@
+Source: autyper
+Section: audio
+Priority: optional
+Maintainer: Varanda Labs <m@varanda.ca>
+Build-Depends: debhelper-compat (= 12)
+Homepage: http://www.varanda.ca
+Package: autyper
+Version: 01.01.0001
+Architecture: amd64
+User: root
+Depends: libc6 (>= 2.17), libqt5x11extras5
+Description: This package installs Autyper Voice to Text Converter.
