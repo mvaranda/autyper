@@ -216,7 +216,7 @@ void AutyperMain::on_actionNew_triggered()
   QString file = QFileDialog::getOpenFileName(this,
                                                tr("Open Audio file"),
                                                Prefs::user_audio_path,
-                                               tr("Audio files (*.mp3), // to be added later:  *.wav *.ogg *.flac *.aac)"),
+                                               tr("Audio files (*.mp3)"),
                                                0,
                                                QFileDialog::DontResolveSymlinks);
 

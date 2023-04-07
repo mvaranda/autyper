@@ -227,10 +227,12 @@ static int mp3ToRaw( const char * filename, const char * file_out)
     return 1;
   }
 
+#ifdef LIMIT_FILE_SIZE
   if (len > MAX_FILE_SIZE) {
     LOG("Input file too large. must be < 10MBytes\n");
     return 1;
   }
+#endif
 
   fdm = (unsigned char *) malloc(len);
   if (! fdm) {
